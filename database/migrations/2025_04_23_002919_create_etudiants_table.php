@@ -20,7 +20,8 @@ class CreateEtudiantsTable extends Migration
             $table->string('email')->unique();
             $table->string('filiere');
             $table->string('niveau'); // Ex : L1, L2, L3, M1...
-            $table->string('photo'); // Ex : L1, L2, L3, M1...
+            $table->string('photo'); 
+            $table->string('password'); 
             $table->string('matricule')->unique(); // identifiant scolaire
             $table->timestamps();
         });

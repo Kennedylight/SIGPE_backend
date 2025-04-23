@@ -18,6 +18,7 @@ class CreateEnseignantsTable extends Migration
             $table->string('nom');
             $table->string('prenom');
             $table->string('photo');
+            $table->string('password'); 
             $table->string('email')->unique();
             $table->string('matricule')->unique(); // identifiant scolaire
             $table->timestamps();

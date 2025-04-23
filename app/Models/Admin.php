@@ -16,6 +16,7 @@ class Admin extends Authenticatable
         'nom',
         'prenom',
         'email',
-        'photo'
+        'photo',
+        'password'
     ];
 }
