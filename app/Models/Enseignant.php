@@ -17,7 +17,8 @@ class Enseignant extends Authenticatable
         'prenom',
         'email',
         'matricule',
-        'photo'
+        'photo',
+        'password'
     ];
     public function matieres()
 {

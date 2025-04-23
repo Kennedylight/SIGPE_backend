@@ -18,7 +18,9 @@ class Etudiant extends Authenticatable
         'filiere',
         'niveau',
         'matricule',
-        'photo'
+        'photo',
+        'password'
+
     ];
     public function session()
     {
