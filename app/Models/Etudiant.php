@@ -4,12 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
 
-class Etudiant extends Model
+class Etudiant extends Authenticatable
 {
-    use HasFactory;
-    protected $fillable = [
+    use HasFactory , HasApiTokens, Notifiable;
+        protected $fillable = [
         'nom',
         'prenom',
         'email',

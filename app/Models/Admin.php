@@ -5,9 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Admin extends Model
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Laravel\Passport\HasApiTokens;
+
+class Admin extends Authenticatable
 {
-    use HasFactory;
+    use HasFactory , HasApiTokens, Notifiable;
     protected $fillable = [
         'nom',
         'prenom',
