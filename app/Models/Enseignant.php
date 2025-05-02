@@ -24,4 +24,17 @@ class Enseignant extends Authenticatable
 {
     return $this->belongsToMany(Matiere::class);
 }
+public function filieres()
+{
+    return $this->belongsToMany(Filere::class);
+}
+public function niveaux()
+{
+    return $this->belongsToMany(Niveau::class);
+}
+public function sessions()
+{
+    return $this->belongsToMany(Session::class);
+}
+
 }

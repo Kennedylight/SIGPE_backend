@@ -26,4 +26,12 @@ class Etudiant extends Authenticatable
     {
         return $this->belongsToMany(Session::class);
     }
+    public function filiere(){
+        return $this->belongsTo(Filere::class);
+    }
+    public function niveau(){
+        return $this->belongsTo(Niveau::class);
+    }
+  
+
 }
