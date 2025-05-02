@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\FiliereController;
+use App\Http\Controllers\NiveauController;
+use App\Http\Controllers\sessionController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -17,6 +20,11 @@ Route::post("/loginEtudiant",[App\Http\Controllers\EtudiantController::class,"lo
 Route::post("/registerEtudiant",[App\Http\Controllers\EtudiantController::class,"store"]);
 Route::post("/loginEnseignant",[App\Http\Controllers\EnseignantController::class,"login"]);
 Route::post("/registerEnseignant",[App\Http\Controllers\EnseignantController::class,"store"]);
+Route::apiResource('sessions', sessionController::class);
+Route::apiResource('niveaux', NiveauController::class);
+Route::apiResource('sessions', NiveauController::class);
+Route::apiResource('filiere', FiliereController::class);
+
 Route::middleware('auth:api')->group(function () {
     
 });

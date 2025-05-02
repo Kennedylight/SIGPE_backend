@@ -21,6 +21,18 @@ class Session extends Model
     {
         return $this->belongsToMany(Etudiant::class);
     }
+    public function enseignants()
+    {
+        return $this->belongsToMany(Enseignant::class);
+    }
+    public function filieres()
+    {
+        return $this->belongsToMany(Filere::class);
+    }
+    public function niveaux()
+    {
+        return $this->belongsToMany(Niveau::class);
+    }
     public function salle()
     {
         return $this->hasMany(Salle::class);

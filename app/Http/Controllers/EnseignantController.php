@@ -60,4 +60,11 @@ class EnseignantController extends Controller
 
         return response()->json(["access_token" =>$token , "enseignant" =>$enseignant]);
     }
+    //recuperer les sessions de tout les enseignants
+    public function sessionsParEnseignant($enseignantId)
+{
+    $enseignant = Enseignant::with('sessions')->findOrFail($enseignantId);
+    return response()->json($enseignant->sessions);
+}
+
 }
