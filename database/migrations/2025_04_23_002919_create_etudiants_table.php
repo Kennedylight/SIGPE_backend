@@ -22,6 +22,7 @@ class CreateEtudiantsTable extends Migration
             $table->string('niveau');
             $table->foreignId('niveau_id')->nullable()->constrained('niveaux')->onDelete('set null'); // Ex : L1, L2, L3, M1...
             $table->string('photo'); 
+            $table->string('utilisateur')->default("ETU");
             $table->string('password'); 
             $table->string('matricule')->unique(); // identifiant scolaire
             $table->timestamps();

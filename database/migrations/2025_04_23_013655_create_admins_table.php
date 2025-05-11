@@ -19,6 +19,8 @@ class CreateAdminsTable extends Migration
             $table->string("prenom");
             $table->string("photo");
             $table->string("email");
+            $table->string('utilisateur')->default("ADM");
+
             $table->string('password'); 
             $table->timestamps();
         });
