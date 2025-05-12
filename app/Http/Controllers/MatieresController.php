@@ -3,15 +3,53 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Enseignant;
 use App\Models\Matiere;
 use Illuminate\Http\Request;
 
 class MatieresController extends Controller
 {
+    public function getMatieresByEnseignant($id) {
+        $enseignant = Enseignant::with('matieres')->find($id);
+        if (!$enseignant) {
+            return response()->json(['message' => 'Enseignant non trouvé.'], 404);
+        }
+        $matieres = $enseignant->matieres();
+        return response()->json([
+            'enseignant' => $enseignant->nom . ' ' . $enseignant->prenom,
+            'matieres' => $matieres,
+        ]);
+    }
+    public function getMatieresByEnseignantFiliereAndNiveau(Request $request, $id)
+{
+    $request->validate([
+        'filiere' => 'required|integer|exists:filieres,id',
+        'niveau' => 'required|integer|exists:niveaux,id',
+    ]);
+
+    $enseignant = Enseignant::find($id);
+
+    if (!$enseignant) {
+        return response()->json(['message' => 'Enseignant non trouvé.'], 404);
+    }
+
+    // Filtrer les matières de cet enseignant selon la filière et le niveau
+    $matieres = $enseignant->matieres()
+        ->where('filiere', $request->filiere)
+        ->where('niveau', $request->niveau)
+        ->get();
+
+    return response()->json([
+        'enseignant' => $enseignant->nom . ' ' . $enseignant->prenom,
+        'filiere' => $request->filiere,
+        'niveau' => $request->niveau,
+        'matieres' => $matieres,
+    ]);
+}
     public function index()
     {
         $matieres =  Matiere::all();
-        return response()->json(['matieres'=>$matieres]);
+        return response()->json(['matieres' => $matieres]);
     }
 
     public function store(Request $request)
@@ -24,7 +62,7 @@ class MatieresController extends Controller
 
         $matiere = Matiere::create($validated);
 
-        return response()->json(['matiere'=>$matiere], 201);
+        return response()->json(['matiere' => $matiere], 201);
     }
 
     public function show($id)
@@ -44,7 +82,7 @@ class MatieresController extends Controller
 
         $matiere->update($validated);
 
-        return response()->json(['matiere'=>$matiere]);
+        return response()->json(['matiere' => $matiere]);
     }
 
     public function destroy($id)
