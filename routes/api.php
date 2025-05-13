@@ -20,10 +20,10 @@ Route::post("/loginEtudiant",[App\Http\Controllers\EtudiantController::class,"lo
 Route::post("/registerEtudiant",[App\Http\Controllers\EtudiantController::class,"store"]);
 Route::post("/loginEnseignant",[App\Http\Controllers\EnseignantController::class,"login"]);
 Route::post("/registerEnseignant",[App\Http\Controllers\EnseignantController::class,"store"]);
-Route::post("/sessionsParEnseignant",[App\Http\Controllers\EnseignantController::class,"sessionsParEnseignant"]);
+Route::post("/sessionsParEnseignant/{id}",[App\Http\Controllers\EnseignantController::class,"sessionsParEnseignant"]);
 Route::post("/sessionsParFiliereEtNiveau",[App\Http\Controllers\sessionController::class,"sessionsParFiliereEtNiveau"]);
-Route::post('/getMatieresByEnseignant', [App\Http\Controllers\MatieresController::class, 'getMatieresByEnseignant']);
-Route::post('/getMatieresByEnseignantFiliereAndNiveau', [App\Http\Controllers\MatieresController::class, 'getMatieresByEnseignantFiliereAndNiveau']);
+Route::post('/getMatieresByEnseignant/{id}', [App\Http\Controllers\MatieresController::class, 'getMatieresByEnseignant']);
+Route::post('/getMatieresByEnseignantFiliereAndNiveau/{id}', [App\Http\Controllers\MatieresController::class, 'getMatieresByEnseignantFiliereAndNiveau']);
 Route::apiResource('sessions', sessionController::class);
 Route::apiResource('niveaux', NiveauController::class);
 Route::apiResource('sessions', NiveauController::class);

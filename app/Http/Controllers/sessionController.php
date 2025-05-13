@@ -8,13 +8,13 @@ use Illuminate\Http\Request;
 
 class sessionController extends Controller
 {
-    public function sessionsParFiliereEtNiveau($filiereId, $niveauId)
+    public function sessionsParFiliereEtNiveau(Request $request)
 {
-    $sessions = Session::whereHas('filieres', function ($q) use ($filiereId) {
-                        $q->where('filieres.id', $filiereId);
+    $sessions = Session::whereHas('filieres', function ($q) use ($request) {
+                        $q->where('filieres.id', $request->filiereId);
                     })
-                    ->whereHas('niveaux', function ($q) use ($niveauId) {
-                        $q->where('niveaux.id', $niveauId);
+                    ->whereHas('niveaux', function ($q) use ($request) {
+                        $q->where('niveaux.id', $request->niveauId);
                     })
                     ->get();
 
