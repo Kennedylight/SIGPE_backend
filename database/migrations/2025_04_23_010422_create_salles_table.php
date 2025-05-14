@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 class CreateSallesTable extends Migration
@@ -18,10 +19,11 @@ class CreateSallesTable extends Migration
             $table->decimal("latitude");
             $table->decimal("longitude");
             $table->decimal("rayon_metres");
-            $table->check('rayon_metres > 0');
-
             $table->timestamps();
         });
+        
+// Ajouter la contrainte CHECK après la création
+DB::statement('ALTER TABLE salles ADD CONSTRAINT check_rayon_positive CHECK (rayon_metres > 0)');
     }
 
     /**

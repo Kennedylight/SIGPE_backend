@@ -18,7 +18,7 @@ class CreateEtudiantsTable extends Migration
             $table->string('nom');
             $table->string('prenom');
             $table->string('email')->unique();
-            $table->foreignId('filiere_id')->nullable()->constrained('filieres')->onDelete('set null');
+            $table->foreignId('filiere_id')->nullable()->constrained('fileres')->onDelete('set null');
             $table->string('niveau');
             $table->foreignId('niveau_id')->nullable()->constrained('niveaux')->onDelete('set null'); // Ex : L1, L2, L3, M1...
             $table->string('photo'); 
