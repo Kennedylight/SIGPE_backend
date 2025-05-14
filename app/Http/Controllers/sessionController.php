@@ -10,11 +10,11 @@ class sessionController extends Controller
 {
     public function sessionsParFiliereEtNiveau(Request $request)
 {
-    $sessions = Session::whereHas('filieres', function ($q) use ($request) {
-                        $q->where('filieres.id', $request->filiereId);
+    $sessions = Session::where( function ($q) use ($request) {
+                        $q->where('filere_id', $request->filere_id);
                     })
-                    ->whereHas('niveaux', function ($q) use ($request) {
-                        $q->where('niveaux.id', $request->niveauId);
+                    ->where(function ($q) use ($request) {
+                        $q->where('niveau_id', $request->niveau_id);
                     })
                     ->get();
 
@@ -22,7 +22,7 @@ class sessionController extends Controller
 }
 public function index()
 {
-    return response()->json(Session::with('salle')->get());
+    return response()->json(Session::all());
 }
 
 public function store(Request $request)
