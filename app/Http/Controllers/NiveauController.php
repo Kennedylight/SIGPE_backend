@@ -47,6 +47,6 @@ class NiveauController extends Controller
         $Niveau = Niveau::findOrFail($id);
         $Niveau->delete();
 
-        return response()->json(null, 204);
+        return response()->json("Suppression reussi", 204);
     }
 }

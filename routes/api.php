@@ -24,10 +24,19 @@ Route::post("/sessionsParEnseignant/{id}",[App\Http\Controllers\EnseignantContro
 Route::post("/sessionsParFiliereEtNiveau",[App\Http\Controllers\sessionController::class,"sessionsParFiliereEtNiveau"]);
 Route::post('/getMatieresByEnseignant/{id}', [App\Http\Controllers\MatieresController::class, 'getMatieresByEnseignant']);
 Route::post('/getMatieresByEnseignantFiliereAndNiveau/{id}', [App\Http\Controllers\MatieresController::class, 'getMatieresByEnseignantFiliereAndNiveau']);
-Route::apiResource('sessions', sessionController::class);
-Route::apiResource('niveaux', NiveauController::class);
-Route::apiResource('sessions', NiveauController::class);
-Route::apiResource('filiere', FiliereController::class);
+Route::get("/sessions", [App\Http\Controllers\sessionController::class, "index"]);        
+Route::post("/addsession", [App\Http\Controllers\sessionController::class, "store"]);       
+Route::put("/sessions/{id}", [App\Http\Controllers\sessionController::class, "update"]);   
+Route::delete("/sessions/{id}", [App\Http\Controllers\sessionController::class, "destroy"]);
+Route::get("/niveaux", [App\Http\Controllers\NiveauController::class, "index"]);
+Route::post("/addniveau", [App\Http\Controllers\NiveauController::class, "store"]);
+Route::put("/niveaux/{id}", [App\Http\Controllers\NiveauController::class, "update"]);
+Route::delete("/niveaux/{id}", [App\Http\Controllers\NiveauController::class, "destroy"]);
+Route::get("/filiere", [App\Http\Controllers\FiliereController::class, "index"]);
+Route::post("/addfiliere", [App\Http\Controllers\FiliereController::class, "store"]);
+Route::put("/filiere/{id}", [App\Http\Controllers\FiliereController::class, "update"]);
+Route::delete("/filiere/{id}", [App\Http\Controllers\FiliereController::class, "destroy"]);
+
 
 Route::middleware('auth:api')->group(function () {
     

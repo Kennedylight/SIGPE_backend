@@ -9,21 +9,28 @@ use Illuminate\Http\Request;
 
 class MatieresController extends Controller
 {
-    public function getMatieresByEnseignant($id) {
+    public function getMatieresByEnseignant($id)
+    {
         $enseignant = Enseignant::with('matieres')->find($id);
+    
         if (!$enseignant) {
             return response()->json(['message' => 'Enseignant non trouvé.'], 404);
         }
-        $matieres = $enseignant->matieres();
+    
+        if ($enseignant->matieres->isEmpty()) {
+            return response()->json(['message' => 'Aucune matière pour cet enseignant.'], 404);
+        }
+    
         return response()->json([
-            'enseignant' => $enseignant->nom . ' ' . $enseignant->prenom,
-            'matieres' => $matieres,
+            'enseignant' => $enseignant->nom,
+            'matieres' => $enseignant->matieres,
         ]);
     }
+    
     public function getMatieresByEnseignantFiliereAndNiveau(Request $request, $id)
 {
     $request->validate([
-        'filiere' => 'required|integer|exists:filieres,id',
+        'filiere' => 'required|integer|exists:fileres,id',
         'niveau' => 'required|integer|exists:niveaux,id',
     ]);
 

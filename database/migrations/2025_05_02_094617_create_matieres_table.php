@@ -16,9 +16,9 @@ class CreateMatieresTable extends Migration
         Schema::create('matieres', function (Blueprint $table) {
             $table->id();
             $table->string("nom");
-            $table->string("code");
-            $table->string("filiere");
-            $table->string("niveau");
+            $table->string("code"); 
+            $table->foreignId('filiere_id')->nullable()->constrained('fileres')->onDelete('set null');
+            $table->foreignId('niveau_id')->nullable()->constrained('niveaux')->onDelete('set null');
             $table->timestamps();
         });
     }
