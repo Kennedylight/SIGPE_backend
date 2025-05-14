@@ -15,8 +15,8 @@ class Etudiant extends Authenticatable
         'nom',
         'prenom',
         'email',
-        'filiere',
-        'niveau',
+        'filiere_id',
+        'niveau_id',
         'matricule',
         'photo',
         'password'

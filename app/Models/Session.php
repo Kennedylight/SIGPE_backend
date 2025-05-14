@@ -15,6 +15,9 @@ class Session extends Model
         'utilisateur_id',
         'lien',
         'description',
+        'matiere_id',
+        'filere_id',
+        'niveau_id',
         'salle_id',
     ];
     public function etudiants()
