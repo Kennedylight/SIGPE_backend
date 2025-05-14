@@ -10,7 +10,9 @@ class Salle extends Model
     use HasFactory;
     protected $fillable = [
         'nom',
-        'position',
+        'latitude',
+        'longitude',
+        'rayon_metres',
        
     ];
     public function session()

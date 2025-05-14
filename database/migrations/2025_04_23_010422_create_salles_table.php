@@ -16,6 +16,7 @@ class CreateSallesTable extends Migration
     {
         Schema::create('salles', function (Blueprint $table) {
             $table->id();
+            $table->string("nom");
             $table->decimal("latitude");
             $table->decimal("longitude");
             $table->decimal("rayon_metres");
