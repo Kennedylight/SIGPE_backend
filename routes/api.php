@@ -35,6 +35,7 @@ Route::delete("/niveaux/{id}", [App\Http\Controllers\NiveauController::class, "d
 Route::get("/filiere", [App\Http\Controllers\FiliereController::class, "index"]);
 Route::post("/addfiliere", [App\Http\Controllers\FiliereController::class, "store"]);
 Route::put("/filiere/{id}", [App\Http\Controllers\FiliereController::class, "update"]);
+Route::post("/importerExcel", [App\Http\Controllers\TestController::class, "importerExcel"]);
 Route::delete("/filiere/{id}", [App\Http\Controllers\FiliereController::class, "destroy"]);
 
 
