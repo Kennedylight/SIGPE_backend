@@ -16,6 +16,6 @@ class TestController extends Controller
 
     Excel::import(new EtudiantsImport, $request->file('fichier'));
 
-    return back()->with('success', 'Importation réussie !');
+    return response()->json('success', 'Importation réussie !');
 }
 }
