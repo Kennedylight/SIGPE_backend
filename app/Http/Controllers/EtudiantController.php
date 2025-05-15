@@ -8,7 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
-
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\EtudiantsImport;
 class EtudiantController extends Controller
 {
     /**
@@ -48,23 +49,15 @@ class EtudiantController extends Controller
 //creer un etudiants
     public function store(Request $request)
     {
+    $request->validate([
+        'fichier' => 'required|file|mimes:xlsx,xls,csv'
+    ]);
 
-        $validator  = Validator::make($request->all(),[
-            "nom"=>"required|string|max:160",
-            "email"=>"required|string|email|max:255|unique:etudiants",
-            "matricule"=>"required|string||max:255|unique:etudiants",
-            "password"=>"required|string|max:160",
-        ]);
-        if($validator->fails()){
-            return response(["errors"=>$validator->errors()->all()],422);
-        }
-        $request['password'] = Hash::make($request["password"]);
-        $request["remember_token"] = Str::random(10);
-        $etudiant = Etudiant::create($request->toArray());
-        $token = $etudiant->createToken("Laravel Password Grant Client")->accessToken;
+    Excel::import(new EtudiantsImport, $request->file('fichier'));
+    return response()->json(['message' => 'Importation réussie !'], 200);
 
-        return response()->json(["access_token" =>$token , "etudiant" =>$etudiant]);
     }
+
     public function index()
     {
         //

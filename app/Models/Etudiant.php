@@ -19,7 +19,10 @@ class Etudiant extends Authenticatable
         'niveau_id',
         'matricule',
         'photo',
-        'password'
+        'password',
+        'Date_nais',
+        'sexe'
+
 
     ];
     public function session()
