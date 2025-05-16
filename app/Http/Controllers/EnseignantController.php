@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\EnseignantImport;
 
 class EnseignantController extends Controller
 {
@@ -60,6 +62,20 @@ class EnseignantController extends Controller
 
         return response()->json(["access_token" =>$token , "enseignant" =>$enseignant]);
     }
+
+//import enseignant
+
+public function ImportExcel(Request $request)
+    {
+    $request->validate([
+        'fichier' => 'required|file|mimes:xlsx,xls,csv'
+    ]);
+
+    Excel::import(new EnseignantImport, $request->file('fichier'));
+    return response()->json(['message' => 'Importation réussie !'], 200);
+
+    }
+
     //recuperer les sessions de tout les enseignants
     public function sessionsParEnseignant($id)
 {

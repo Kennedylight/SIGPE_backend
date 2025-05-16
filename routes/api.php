@@ -24,6 +24,15 @@ Route::post("/sessionsParEnseignant/{id}",[App\Http\Controllers\EnseignantContro
 Route::post("/sessionsParFiliereEtNiveau",[App\Http\Controllers\sessionController::class,"sessionsParFiliereEtNiveau"]);
 Route::post('/getMatieresByEnseignant/{id}', [App\Http\Controllers\MatieresController::class, 'getMatieresByEnseignant']);
 Route::post('/getMatieresByEnseignantFiliereAndNiveau/{id}', [App\Http\Controllers\MatieresController::class, 'getMatieresByEnseignantFiliereAndNiveau']);
+
+Route::post('/MatiereImport', [App\Http\Controllers\MatieresController::class, 'ImportExcel']);
+Route::post('/SalleImport', [App\Http\Controllers\SalleController::class, 'ImportExcel']);
+Route::post('/FiliereImport', [App\Http\Controllers\FiliereController::class, 'ImportExcel']);
+Route::post('/EtudiantsImport', [App\Http\Controllers\EtudiantController::class, 'ImportExcel']);
+Route::post('/EnseignantsImport', [App\Http\Controllers\EnseignantController::class, 'ImportExcel']);
+Route::post('/NiveauImport', [App\Http\Controllers\NiveauController::class, 'ImportExcel']);
+
+
 Route::get("/sessions", [App\Http\Controllers\sessionController::class, "index"]);        
 Route::post("/addsession", [App\Http\Controllers\sessionController::class, "store"]);       
 Route::put("/sessions/{id}", [App\Http\Controllers\sessionController::class, "update"]);   
