@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Enseignant;
 use App\Models\Matiere;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\MatiereImport;
 
 class MatieresController extends Controller
 {
@@ -72,6 +74,14 @@ class MatieresController extends Controller
         return response()->json(['matiere' => $matiere], 201);
     }
 
+    public function ImportExcel(Request $request){
+        $request->validate([
+        'fichier' => 'required|file|mimes:xlsx,xls,csv'
+    ]);
+
+    Excel::import(new MatiereImport, $request->file('fichier'));
+    return response()->json(['message' => 'Importation réussie !'], 200);
+    }
     public function show($id)
     {
         return Matiere::findOrFail($id);
