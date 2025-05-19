@@ -22,8 +22,6 @@ class Etudiant extends Authenticatable
         'password',
         'Date_nais',
         'sexe'
-
-
     ];
     public function session()
     {

@@ -17,7 +17,7 @@ class CreateMatieresTable extends Migration
             $table->id();
             $table->string("nom");
             $table->string("code"); 
-            $table->foreignId('filiere_id')->nullable()->constrained('fileres')->onDelete('set null');
+            $table->foreignId('filiere_id')->nullable()->constrained('filieres')->onDelete('set null');
             $table->foreignId('niveau_id')->nullable()->constrained('niveaux')->onDelete('set null');
             $table->timestamps();
         });

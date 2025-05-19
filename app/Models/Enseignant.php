@@ -26,7 +26,7 @@ class Enseignant extends Authenticatable
 }
 public function filieres()
 {
-    return $this->belongsToMany(Filere::class);
+    return $this->belongsToMany(Filere::class, 'enseignant_filiere', 'enseignant_id', 'filiere_id');
 }
 public function niveaux()
 {
