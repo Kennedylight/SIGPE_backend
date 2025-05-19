@@ -3,6 +3,8 @@
 use App\Http\Controllers\FiliereController;
 use App\Http\Controllers\NiveauController;
 use App\Http\Controllers\sessionController;
+use App\Http\Controllers\SalleController;
+use App\Http\Controllers\EnseignantController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -20,6 +22,8 @@ Route::post("/loginEtudiant",[App\Http\Controllers\EtudiantController::class,"lo
 Route::post("/registerEtudiant",[App\Http\Controllers\EtudiantController::class,"store"]);
 Route::post("/loginEnseignant",[App\Http\Controllers\EnseignantController::class,"login"]);
 Route::post("/registerEnseignant",[App\Http\Controllers\EnseignantController::class,"store"]);
+Route::post("/loginAdmin",[App\Http\Controllers\AdminController::class,"login"]);
+
 Route::post("/sessionsParEnseignant/{id}",[App\Http\Controllers\EnseignantController::class,"sessionsParEnseignant"]);
 Route::post("/sessionsParFiliereEtNiveau",[App\Http\Controllers\sessionController::class,"sessionsParFiliereEtNiveau"]);
 Route::post('/getMatieresByEnseignant/{id}', [App\Http\Controllers\MatieresController::class, 'getMatieresByEnseignant']);
@@ -32,11 +36,18 @@ Route::post('/EtudiantsImport', [App\Http\Controllers\EtudiantController::class,
 Route::post('/EnseignantsImport', [App\Http\Controllers\EnseignantController::class, 'ImportExcel']);
 Route::post('/NiveauImport', [App\Http\Controllers\NiveauController::class, 'ImportExcel']);
 
+// Ajoutés par le dev du FRONT END ------------------------------------------------------------------------------------------
 
-Route::get("/sessions", [App\Http\Controllers\sessionController::class, "index"]);        
+Route::get('/enseignant', [App\Http\Controllers\EnseignantController::class, 'index']);
+Route::post('/enseignants/byfiliereniveau', [App\Http\Controllers\EnseignantController::class, 'getEnseignantsByFiliereAndNiveau']);
+Route::post("/matieres/byfiliereniveau", [App\Http\Controllers\MatieresController::class, "getMatieresByFiliereAndNiveau"]); 
+
+Route::get("/sessions", [App\Http\Controllers\sessionController::class, "index"]);
+Route::get("/matieres", [App\Http\Controllers\MatieresController::class, "index"]);        
 Route::post("/addsession", [App\Http\Controllers\sessionController::class, "store"]);       
 Route::put("/sessions/{id}", [App\Http\Controllers\sessionController::class, "update"]);   
 Route::delete("/sessions/{id}", [App\Http\Controllers\sessionController::class, "destroy"]);
+Route::get("/salles", [App\Http\Controllers\SalleController::class, "index"]);
 Route::get("/niveaux", [App\Http\Controllers\NiveauController::class, "index"]);
 Route::post("/addniveau", [App\Http\Controllers\NiveauController::class, "store"]);
 Route::put("/niveaux/{id}", [App\Http\Controllers\NiveauController::class, "update"]);

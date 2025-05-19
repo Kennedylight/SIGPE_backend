@@ -3,6 +3,7 @@
 namespace App\Imports;
 
 use App\Models\Filere;
+use App\Models\Filiere;
 use App\Models\Matiere;
 use App\Models\Niveau;
 use App\Models\Etudiant;
@@ -19,7 +20,7 @@ class FiliereImport implements ToModel , WithHeadingRow
     */
     public function model(array $row)
     {
-        return new Filere([
+        return new Filiere([
     
               'code' => $row['code'],
               'nom'  => $row['nom'],    

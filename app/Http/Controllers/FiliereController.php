@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Filere;
+use App\Models\Filiere;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\FiliereImport;
@@ -12,7 +13,7 @@ class FiliereController extends Controller
 {
     public function index()
     {
-        return Filere::all();
+        return Filiere::all();
     }
 
     public function store(Request $request)
@@ -22,13 +23,13 @@ class FiliereController extends Controller
             'code' => 'required|string|max:100',
         ]);
 
-        $Filere = Filere::create($validated);
-        return response()->json($Filere, 201);
+        $Filiere = Filiere::create($validated);
+        return response()->json($Filiere, 201);
     }
 
     public function show($id)
     {
-        return Filere::findOrFail($id);
+        return Filiere::findOrFail($id);
     }
 
      public function ImportExcel(Request $request ){
@@ -43,21 +44,21 @@ class FiliereController extends Controller
 
     public function update(Request $request, $id)
     {
-        $Filere = Filere::findOrFail($id);
+        $Filiere = Filiere::findOrFail($id);
 
         $validated = $request->validate([
             'nom' => 'sometimes|string|max:255',
             'code' => 'sometimes|string|max:100',
         ]);
 
-        $Filere->update($validated);
-        return response()->json($Filere);
+        $Filiere->update($validated);
+        return response()->json($Filiere);
     }
     
     public function destroy($id)
     {
-        $Filere = Filere::findOrFail($id);
-        $Filere->delete();
+        $Filiere = Filiere::findOrFail($id);
+        $Filiere->delete();
 
         return response()->json(null, 204);
     }
