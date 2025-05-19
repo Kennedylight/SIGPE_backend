@@ -45,7 +45,8 @@ Route::post("/matieres/byfiliereniveau", [App\Http\Controllers\MatieresControlle
 Route::get("/sessions", [App\Http\Controllers\sessionController::class, "index"]);
 Route::get("/matieres", [App\Http\Controllers\MatieresController::class, "index"]);        
 Route::post("/addsession", [App\Http\Controllers\sessionController::class, "store"]);       
-Route::put("/sessions/{id}", [App\Http\Controllers\sessionController::class, "update"]);   
+Route::put("/sessions/{id}", [App\Http\Controllers\sessionController::class, "update"]); 
+Route::patch("/sessions/{id}", [App\Http\Controllers\sessionController::class, "update"]);  
 Route::delete("/sessions/{id}", [App\Http\Controllers\sessionController::class, "destroy"]);
 Route::get("/salles", [App\Http\Controllers\SalleController::class, "index"]);
 Route::get("/niveaux", [App\Http\Controllers\NiveauController::class, "index"]);
