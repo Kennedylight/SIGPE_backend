@@ -118,12 +118,37 @@ public function update(Request $request, $id)
         'lien' => 'nullable|string',
         'description' => 'nullable|string',
         'salle_id' => 'nullable|exists:salles,id',
+        'matiere_id' => 'sometimes|exists:matieres,id',
+        'filiere_id' => 'sometimes|exists:filieres,id',
+        'niveau_id' => 'sometimes|exists:niveaux,id',
+        'enseignant_id' => 'sometimes|exists:enseignants,id',
     ]);
 
     $session->update($validated);
 
+    // Recharger les relations si besoin
+    $session->load(['matiere', 'salle', 'enseignant', 'filiere', 'niveau']);
+
     return response()->json($session);
 }
+
+// public function update(Request $request, $id)
+// {
+//     $session = Session::findOrFail($id);
+
+//     $validated = $request->validate([
+//         'statut' => 'sometimes|required|string',
+//         'heure_debut' => 'sometimes|required|date',
+//         'heure_fin' => 'sometimes|required|date|after:heure_debut',
+//         'lien' => 'nullable|string',
+//         'description' => 'nullable|string',
+//         'salle_id' => 'nullable|exists:salles,id',
+//     ]);
+
+//     $session->update($validated);
+
+//     return response()->json($session);
+// }
 
 public function destroy($id)
 {
