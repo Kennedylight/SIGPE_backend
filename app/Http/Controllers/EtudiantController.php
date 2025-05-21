@@ -78,6 +78,17 @@ class EtudiantController extends Controller
     return response()->json(['message' => 'Importation réussie !'], 200);
 
     }
+# Ajouté par le dev du FRONT END ------------------------------------------------------------------------------
+    public function updateDeviceToken(Request $request, $id) {
+    $etudiant = Etudiant::findOrFail($id);
+    $etudiant->device_token = $request->input('device_token');
+    $etudiant->save();
+
+    return response()->json(['message' => 'Token mis à jour']);
+}
+
+
+
     
     public function index()
     {

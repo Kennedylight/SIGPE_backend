@@ -41,6 +41,19 @@ Route::post('/NiveauImport', [App\Http\Controllers\NiveauController::class, 'Imp
 Route::get('/enseignant', [App\Http\Controllers\EnseignantController::class, 'index']);
 Route::post('/enseignants/byfiliereniveau', [App\Http\Controllers\EnseignantController::class, 'getEnseignantsByFiliereAndNiveau']);
 Route::post("/matieres/byfiliereniveau", [App\Http\Controllers\MatieresController::class, "getMatieresByFiliereAndNiveau"]); 
+Route::post('/sessions/{id}/lancer', [App\Http\Controllers\SessionController::class, 'lancerSession']);
+Route::get('/sessions/{id}/inscrits', [App\Http\Controllers\PresenceController::class, 'getInscritsParSession']);
+// Route::post('/etudiants/device-token', [App\Http\Controllers\EtudiantController::class, 'updateDeviceToken']);
+// Route::post('/enseignants/device-token', [App\Http\Controllers\EnseignantController::class, 'updateDeviceToken']);
+Route::post('/etudiants/{id}/device-token', [App\Http\Controllers\EtudiantController::class, 'updateDeviceToken']);
+Route::post('/enseignants/{id}/device-token', [App\Http\Controllers\EnseignantController::class, 'updateDeviceToken']);
+Route::get('/test-fcm', function () {
+    $etudiant = \App\Models\Etudiant::find(1);
+    $controller = new SessionController(); // Crée une instance
+    $controller->envoyerNotificationEtudiant($etudiant, 'Test de notification');
+});
+
+
 
 Route::get("/sessions", [App\Http\Controllers\sessionController::class, "index"]);
 Route::get("/matieres", [App\Http\Controllers\MatieresController::class, "index"]);        

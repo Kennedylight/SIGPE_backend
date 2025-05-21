@@ -4,8 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Session;
+use App\Models\Etudiant;
+use App\Models\Presence;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class sessionController extends Controller
 {
@@ -157,5 +161,98 @@ public function destroy($id)
 
     return response()->json(['message' => 'Session supprimée avec succès.']);
 }
+
+public function lancerSession(Request $request, $id)
+{
+    $session = Session::findOrFail($id);
+
+    // 1. Mettre à jour le statut
+    $session->statut = 'En cours';
+    $session->save();
+
+    // 2. Récupérer les étudiants liés à la filière et au niveau
+    $etudiants = Etudiant::where('filiere_id', $session->filiere_id)
+                        ->where('niveau_id', $session->niveau_id)
+                        ->get();
+
+    // 3. Créer les présences
+    foreach ($etudiants as $etudiant) {
+        Presence::create([
+            'session_id' => $session->id,
+            'etudiant_id' => $etudiant->id,
+            'statut' => 'absent'
+        ]);
+
+        // 4. Émettre une notification
+        $this->envoyerNotificationEtudiant($etudiant, "Votre cours de {$session->matiere->nom} vient de commencer.");
+    }
+
+    return response()->json(['message' => 'Session lancée avec succès']);
+}
+
+public function envoyerNotificationEtudiant(Etudiant $etudiant, $message)
+{
+    if (!$etudiant->device_token) return;
+
+    $SERVER_API_KEY = env('FCM_SERVER_KEY');
+
+    $data = [
+        "to" => $etudiant->device_token,
+        "notification" => [
+            "title" => "Nouveau cours",
+            "body" => $message,
+            "sound" => "default"
+        ]
+    ];
+
+    // Chemin absolu vers cacert.pem
+    $certPath = base_path('certs/cacert.pem'); // ⚠️ Assure-toi que ce fichier existe ici
+
+    $client = new \GuzzleHttp\Client([
+        'verify' => $certPath, // Cette ligne corrige l'erreur cURL 60
+    ]);
+
+    try {
+        $response = $client->post("https://fcm.googleapis.com/fcm/send", [
+            'headers' => [
+                'Authorization' => 'key=' . $SERVER_API_KEY,
+                'Content-Type' => 'application/json',
+            ],
+            'body' => json_encode($data),
+        ]);
+
+        // (Optionnel) pour debug ou journaliser la réponse
+        // Log::info('Notification envoyée: ' . $response->getBody());
+    } catch (\Exception $e) {
+        Log::error('Erreur envoi notification FCM : ' . $e->getMessage());
+    }
+}
+
+
+// public function envoyerNotificationEtudiant(Etudiant $etudiant, $message)
+// {
+//     if (!$etudiant->device_token) return;
+
+//     $SERVER_API_KEY = env('FCM_SERVER_KEY');
+
+//     $data = [
+//         "to" => $etudiant->device_token,
+//         "notification" => [
+//             "title" => "Nouveau cours",
+//             "body" => $message,
+//             "sound" => "default"
+//         ]
+//     ];
+
+//     $client = new \GuzzleHttp\Client();
+//     $response = $client->post("https://fcm.googleapis.com/fcm/send", [
+//         'headers' => [
+//             'Authorization' => 'key=' . $SERVER_API_KEY,
+//             'Content-Type' => 'application/json',
+//         ],
+//         'body' => json_encode($data),
+//     ]);
+// }
+
 
 }

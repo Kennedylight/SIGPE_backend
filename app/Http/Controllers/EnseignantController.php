@@ -93,6 +93,13 @@ public function ImportExcel(Request $request)
 
     return response()->json($sessions);
 }
+public function updateDeviceToken(Request $request, $id) {
+    $etudiant = Enseignant::findOrFail($id);
+    $etudiant->device_token = $request->input('device_token');
+    $etudiant->save();
+
+    return response()->json(['message' => 'Token mis à jour']);
+}
 
 // public function sessionsParEnseignant($id)
 // {
