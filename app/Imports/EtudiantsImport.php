@@ -19,8 +19,8 @@ class EtudiantsImport implements ToModel, WithHeadingRow
     public function model(array $row)
     {
         // Cherche l'ID de la filière et du niveau selon les noms dans le fichier Excel
-    $filiere = Filiere::where('nom', $row['filiere'])->first();
-    $niveau = Niveau::where('nom', $row['niveau'])->first();
+    $filiere = Filiere::where('code', $row['filiere'])->first();
+    $niveau = Niveau::where('code', $row['niveau'])->first();
         return new Etudiant([
             'matricule' => $row['matricule'],
             'nom'  => $row['nom'],

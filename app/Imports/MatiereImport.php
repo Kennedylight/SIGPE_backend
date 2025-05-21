@@ -20,8 +20,8 @@ class MatiereImport implements ToModel, WithHeadingRow
     */
     public function model(array $row)
     {
-         $filiere = Filiere::where('nom', $row['filiere'])->first();
-    $niveau = Niveau::where('nom', $row['niveau'])->first();
+         $filiere = Filiere::where('code', $row['filiere'])->first();
+    $niveau = Niveau::where('code', $row['niveau'])->first();
    
         return new Matiere([
             'code' => $row['code'],
