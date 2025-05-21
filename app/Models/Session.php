@@ -67,4 +67,10 @@ public function niveau()
     return $this->belongsTo(Niveau::class, 'niveau_id');
 }
 
+public function presences()
+{
+    return $this->hasMany(Presence::class);
+}
+
+
 }
