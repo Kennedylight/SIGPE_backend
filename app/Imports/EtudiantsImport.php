@@ -16,21 +16,21 @@ class EtudiantsImport implements ToModel, WithHeadingRow
     *
     * @return \Illuminate\Database\Eloquent\Model|null
     */
-    public function model(array $row)
-    {
-        // Cherche l'ID de la filière et du niveau selon les noms dans le fichier Excel
+   public function model(array $row)
+{
     $filiere = Filiere::where('code', $row['filiere'])->first();
-    $niveau = Niveau::where('code', $row['niveau'])->first();
-        return new Etudiant([
-            'matricule' => $row['matricule'],
-            'nom'  => $row['nom'],
-            'prenom'   => $row['prenom'],
-            'Date_nais'   => $row['date_naiss'],
-            'sexe'   => $row['sexe'],
-            'email'   => $row['email'],            
-            'filiere'   => $filiere ? $filiere->id : null,  // conversion texte → id
-            'niveau'    => $niveau ? $niveau->id : null,    // conversion texte → id
+    $niveau = Niveau::where('code',$row['niveau'])->first();
+    
+    return new Etudiant([
+        'matricule' => $row['matricule'],
+        'nom'       => $row['nom'],
+        'prenom'    => $row['prenom'],
+        'Date_nais' => $row['date_naiss'],
+        'sexe'      => $row['sexe'],
+        'email'     => $row['email'],            
+        'filiere_id'   => $filiere->id ,
+        'niveau_id'    => $niveau->id,
+    ]);
+}
 
-            ]);
-    }
 }
