@@ -19,4 +19,10 @@ class Salle extends Model
 {
     return $this->hasMany(User::class);
 }
+
+public function sessions()
+{
+    return $this->hasMany(Session::class);
+}
+
 }

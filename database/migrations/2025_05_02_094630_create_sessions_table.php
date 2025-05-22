@@ -22,7 +22,7 @@ class CreateSessionsTable extends Migration
             $table->text('description')->nullable();
             $table->foreignId('salle_id')->nullable()->constrained('salles')->onDelete('set null');
             $table->foreignId('matiere_id')->nullable()->constrained('matieres')->onDelete('set null');
-            $table->foreignId('filere_id')->nullable()->constrained('fileres')->onDelete('set null');
+            $table->foreignId('filiere_id')->nullable()->constrained('filieres')->onDelete('set null');
             $table->foreignId('niveau_id')->nullable()->constrained('niveaux')->onDelete('set null');
             $table->timestamps();
         });

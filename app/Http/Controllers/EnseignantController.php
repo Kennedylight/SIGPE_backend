@@ -8,6 +8,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\EnseignantImport;
+use App\Models\Session;
+
 
 class EnseignantController extends Controller
 {
@@ -60,11 +64,92 @@ class EnseignantController extends Controller
 
         return response()->json(["access_token" =>$token , "enseignant" =>$enseignant]);
     }
+
+//import enseignant
+
+public function ImportExcel(Request $request)
+    {
+    $request->validate([
+        'fichier' => 'required|file|mimes:xlsx,xls,csv'
+    ]);
+
+    Excel::import(new EnseignantImport, $request->file('fichier'));
+    return response()->json(['message' => 'Importation réussie !'], 200);
+
+    }
+
     //recuperer les sessions de tout les enseignants
+
+    // Ajoutés par le dev du FRONT END ---------------------------------------------------------------------
     public function sessionsParEnseignant($id)
 {
-    $enseignant = Enseignant::with('sessions')->findOrFail($id);
-    return response()->json($enseignant->sessions);
+    // Vérifie si l'enseignant existe
+    $enseignant = Enseignant::findOrFail($id);
+
+    // Récupère les sessions qui lui sont assignées
+    $sessions = Session::where('enseignant_id', $id)
+        ->with(['matiere', 'salle', 'enseignant', 'niveau', 'filiere'])
+        ->get();
+
+    return response()->json($sessions);
 }
+public function updateDeviceToken(Request $request, $id) {
+    $etudiant = Enseignant::findOrFail($id);
+    $etudiant->device_token = $request->input('device_token');
+    $etudiant->save();
+
+    return response()->json(['message' => 'Token mis à jour']);
+}
+
+// public function sessionsParEnseignant($id)
+// {
+//     $enseignant = Enseignant::findOrFail($id);
+
+//     // On récupère les sessions de cet enseignant avec les relations nécessaires
+//     $sessions = Session::whereHas('enseignants', function ($query) use ($id) {
+//         $query->where('enseignant_id', $id);
+//     })
+//     ->with(['matiere', 'salle', 'enseignants', 'niveau', 'filiere'])
+//     ->get();
+
+//     return response()->json($sessions);
+// }
+
+
+// Ajoutés par la dev du FRONT END --------------------------------------------------------------------
+
+public function index()
+    {
+        return Enseignant::all();
+    }
+
+public function getEnseignantsByFiliereAndNiveau(Request $request)
+{
+    $request->validate([
+        'filiere' => 'required|integer|exists:fileres,id',
+        'niveau' => 'required|integer|exists:niveaux,id',
+    ]);
+
+    $filiereId = $request->filiere;
+    $niveauId = $request->niveau;
+
+    $enseignants = Enseignant::select('id', 'nom', 'prenom', 'photo')
+        ->whereHas('filieres', function ($query) use ($filiereId) {
+            $query->where('fileres.id', $filiereId);
+        })
+        ->whereHas('niveaux', function ($query) use ($niveauId) {
+            $query->where('niveaux.id', $niveauId);
+        })
+        ->get();
+
+    return response()->json([
+        'filiere' => $filiereId,
+        'niveau' => $niveauId,
+        'enseignants' => $enseignants,
+    ]);
+}
+
+
+
 
 }

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateFileresTable extends Migration
+class CreateTestsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,16 @@ class CreateFileresTable extends Migration
      */
     public function up()
     {
-        Schema::create('fileres', function (Blueprint $table) {
+        Schema::create('tests', function (Blueprint $table) {
             $table->id();
-            $table->string("code");
-            $table->string("nom");
+             $table->string('matricule')->unique();
+        $table->string('nom');
+        $table->string('prenom');
+        $table->string('Date_nais');
+        $table->string('sexe');
+        $table->string('email');
+        $table->string('filiere');
+        $table->string('niveau');
             $table->timestamps();
         });
     }
@@ -28,6 +34,6 @@ class CreateFileresTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('fileres');
+        Schema::dropIfExists('tests');
     }
 }
