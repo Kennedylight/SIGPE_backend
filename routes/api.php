@@ -41,7 +41,7 @@ Route::post('/NiveauImport', [App\Http\Controllers\NiveauController::class, 'Imp
 Route::get('/enseignant', [App\Http\Controllers\EnseignantController::class, 'index']);
 Route::post('/enseignants/byfiliereniveau', [App\Http\Controllers\EnseignantController::class, 'getEnseignantsByFiliereAndNiveau']);
 Route::post("/matieres/byfiliereniveau", [App\Http\Controllers\MatieresController::class, "getMatieresByFiliereAndNiveau"]); 
-Route::post('/sessions/{id}/lancer', [App\Http\Controllers\SessionController::class, 'lancerSession']);
+Route::post('/sessions/{id}/lancer', [App\Http\Controllers\sessionController::class, 'lancerSession']);
 Route::get('/sessions/{id}/inscrits', [App\Http\Controllers\PresenceController::class, 'getInscritsParSession']);
 // Route::post('/etudiants/device-token', [App\Http\Controllers\EtudiantController::class, 'updateDeviceToken']);
 // Route::post('/enseignants/device-token', [App\Http\Controllers\EnseignantController::class, 'updateDeviceToken']);

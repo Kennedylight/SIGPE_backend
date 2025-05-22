@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Notifiable;
 use App\Notifications\SessionLancee;
+use Illuminate\Support\Facades\Notification;
 
 class sessionController extends Controller
 {
@@ -120,10 +121,10 @@ public function lancerSession(Request $request, $id)
             'etudiant_id' => $etudiant->id,
             'statut' => 'absent'
         ]);
-        $etudiant->notify(new SessionLancee($session));
-        return response()->json("Une notification a ete envoyer a tous les utilisateurs");
+       
     }
-
+        Notification::send($etudiants, new SessionLancee($session));
+        return response()->json("Une notification a ete envoyer a tous les utilisateurs");
 }
 
 
