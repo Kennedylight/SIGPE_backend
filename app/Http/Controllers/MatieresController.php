@@ -47,7 +47,7 @@ class MatieresController extends Controller
         ->get();
 
     return response()->json([
-        'enseignant' => $enseignant->nom . ' ' . $enseignant->prenom,
+        'enseignant' => $enseignant->nom,
         'filiere' => $request->filiere,
         'niveau' => $request->niveau,
         'matieres' => $matieres,
@@ -69,7 +69,7 @@ class MatieresController extends Controller
 
         $matiere = Matiere::create($validated);
 
-        return response()->json(['matiere' => $matiere], 201);
+        return response()->json(['matiere' => $matiere], 200);
     }
 
     public function show($id)
