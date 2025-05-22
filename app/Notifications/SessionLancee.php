@@ -19,7 +19,7 @@ class SessionLancee extends Notification
      */
     public function __construct($session)
     {
-        //
+        $this->session = $session;
     }
 
     /**
@@ -39,7 +39,7 @@ class SessionLancee extends Notification
      * @param  mixed  $notifiable
      * @return \Illuminate\Notifications\Messages\MailMessage
      */
-    public function database($notifiable)
+    public function toDatabase($notifiable)
     {
         return [
                   "title"=>"Nouvelle session Lancee",

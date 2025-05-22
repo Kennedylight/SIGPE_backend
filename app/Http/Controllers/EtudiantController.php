@@ -39,6 +39,7 @@ class EtudiantController extends Controller
             }
 
         }
+
         else{
             $response = ["errors" => ["ce compte n\'existe pas"]];
             return Response()->json($response, 422);
@@ -78,6 +79,19 @@ class EtudiantController extends Controller
     return response()->json(['message' => 'Importation réussie !'], 200);
 
     }
+     // Notifications (lues + non lues)
+public function mesNotifications()
+{
+   
+    return auth()->user()->notifications;
+}
+
+// Ou juste les non lues :
+public function mesNotificationsNonLues()
+{
+    return auth()->user()->unreadNotifications;
+}
+
 # Ajouté par le dev du FRONT END ------------------------------------------------------------------------------
     public function updateDeviceToken(Request $request, $id) {
     $etudiant = Etudiant::findOrFail($id);
