@@ -19,8 +19,10 @@ class Etudiant extends Authenticatable
         'niveau_id',
         'matricule',
         'photo',
-        'password'
-
+        'password',
+        'Date_nais',
+        'sexe',
+        'device_token'
     ];
     public function session()
     {
@@ -32,6 +34,12 @@ class Etudiant extends Authenticatable
     public function niveau(){
         return $this->belongsTo(Niveau::class);
     }
+
+    public function presences()
+    {
+        return $this->hasMany(Presence::class);
+    }
+
   
 
 }

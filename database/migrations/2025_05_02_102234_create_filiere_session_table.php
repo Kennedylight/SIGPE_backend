@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateFilereSessionTable extends Migration
+class CreateFiliereSessionTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,9 @@ class CreateFilereSessionTable extends Migration
      */
     public function up()
     {
-        Schema::create('filere_session', function (Blueprint $table) {
+        Schema::create('filiere_session', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('filere_id')->constrained('fileres')->onDelete('cascade');
+            $table->foreignId('filiere_id')->constrained('filieres')->onDelete('cascade');
             $table->foreignId('session_id')->constrained('sessions')->onDelete('cascade');
             $table->timestamps();
         });
@@ -28,6 +28,6 @@ class CreateFilereSessionTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('filere_session');
+        Schema::dropIfExists('filiere_session');
     }
 }

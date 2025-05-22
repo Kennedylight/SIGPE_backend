@@ -11,8 +11,8 @@ class Matiere extends Model
     protected $fillable = [
         'nom',
         'code',
-        'filiere',
-        'niveau',
+        'filiere_id',
+        'niveau_id',
     ];
     public function enseignants()
 {

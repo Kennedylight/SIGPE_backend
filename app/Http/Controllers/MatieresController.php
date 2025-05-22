@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Enseignant;
 use App\Models\Matiere;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\MatiereImport;
 
 class MatieresController extends Controller
 {
@@ -30,7 +32,7 @@ class MatieresController extends Controller
     public function getMatieresByEnseignantFiliereAndNiveau(Request $request, $id)
 {
     $request->validate([
-        'filiere' => 'required|integer|exists:fileres,id',
+        'filiere' => 'required|integer|exists:filieres,id',
         'niveau' => 'required|integer|exists:niveaux,id',
     ]);
 
@@ -42,8 +44,8 @@ class MatieresController extends Controller
 
     // Filtrer les matières de cet enseignant selon la filière et le niveau
     $matieres = $enseignant->matieres()
-        ->where('filiere', $request->filiere)
-        ->where('niveau', $request->niveau)
+        ->where('filiere_id', $request->filiere)
+        ->where('niveau_id', $request->niveau)
         ->get();
 
     return response()->json([
@@ -72,6 +74,14 @@ class MatieresController extends Controller
         return response()->json(['matiere' => $matiere], 200);
     }
 
+    public function ImportExcel(Request $request){
+        $request->validate([
+        'fichier' => 'required|file|mimes:xlsx,xls,csv'
+    ]);
+
+    Excel::import(new MatiereImport, $request->file('fichier'));
+    return response()->json(['message' => 'Importation réussie !'], 200);
+    }
     public function show($id)
     {
         return Matiere::findOrFail($id);
@@ -99,4 +109,28 @@ class MatieresController extends Controller
 
         return response()->json(null, 204);
     }
+
+    // Ajoutés par le dev du FRONT END -------------------------------------------------------------------------
+    public function getMatieresByFiliereAndNiveau(Request $request)
+{
+    $request->validate([
+        'filiere' => 'required|integer|exists:filieres,id',
+        'niveau' => 'required|integer|exists:niveaux,id',
+    ]);
+
+    $filiereId = $request->filiere;
+    $niveauId = $request->niveau;
+
+    // Récupérer les matières liées à la filière et au niveau spécifiés
+    $matieres = Matiere::where('filiere_id', $filiereId)
+        ->where('niveau_id', $niveauId)
+        ->get();
+
+    return response()->json([
+        'filiere' => $filiereId,
+        'niveau' => $niveauId,
+        'matieres' => $matieres,
+    ]);
+}
+
 }
