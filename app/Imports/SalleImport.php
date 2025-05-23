@@ -20,11 +20,15 @@ class SalleImport implements ToModel , WithHeadingRow
     */
     public function model(array $row)
     {
-        return new Salle([
-            'nom' => $row['nom'],
-            'latitude'  => $row['latitude'],
-            'longitude'  => $row['longitude'],
-            'rayon_metres'  => $row['rayon_metres'],      
-        ]);
+        $salle = Salle::where('nom' , $row['nom'])->first();
+
+        if(!$salle){
+            return new Salle([
+                'nom' => $row['nom'],
+                'latitude'  => $row['latitude'],
+                'longitude'  => $row['longitude'],
+                'rayon_metres'  => $row['rayon_metres'],      
+            ]);
+        } 
     }
 }

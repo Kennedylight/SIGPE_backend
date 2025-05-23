@@ -20,11 +20,15 @@ class FiliereImport implements ToModel , WithHeadingRow
     */
     public function model(array $row)
     {
+      $filiere = Filiere::where('code' , $row['code'])->first();
+    
+      if(!$filiere){
         return new Filiere([
     
               'code' => $row['code'],
               'nom'  => $row['nom'],    
         ]);
+    }
 
     }
 }

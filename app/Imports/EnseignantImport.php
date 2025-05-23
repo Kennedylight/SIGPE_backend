@@ -16,6 +16,9 @@ class EnseignantImport implements ToModel , WithHeadingRow
     */
     public function model(array $row)
     {
+        $enseignant = Enseignant::where('matricule' , $row['matricule'])->where('email' , $row['email'])->first();
+
+        if(!$enseignant){
         return new Enseignant([
             'matricule' => $row['matricule'],
             'nom'  => $row['nom'],
@@ -23,5 +26,6 @@ class EnseignantImport implements ToModel , WithHeadingRow
             'email'   => $row['email'],            
             
         ]);
+        }
     }
 }

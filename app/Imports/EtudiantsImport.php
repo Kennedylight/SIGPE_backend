@@ -20,8 +20,9 @@ class EtudiantsImport implements ToModel, WithHeadingRow
 {
     $filiere = Filiere::where('code', $row['filiere'])->first();
     $niveau = Niveau::where('code',$row['niveau'])->first();
-    
-    return new Etudiant([
+    $etudiant = Etudiant::where('matricule' , $row['matricule'])->where('email' , $row['email'])->first();
+    if(!$etudiant){
+        return new Etudiant([
         'matricule' => $row['matricule'],
         'nom'       => $row['nom'],
         'prenom'    => $row['prenom'],
@@ -31,6 +32,9 @@ class EtudiantsImport implements ToModel, WithHeadingRow
         'filiere_id'   => $filiere->id ,
         'niveau_id'    => $niveau->id,
     ]);
+    }
+    
+    
 }
 
 }
