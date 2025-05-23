@@ -84,5 +84,6 @@ Route::delete("/filiere/{id}", [App\Http\Controllers\FiliereController::class, "
 
 
 Route::middleware('auth:api')->group(function () {
-    
+    Route::get("/mesNotifications",[App\Http\Controllers\EtudiantController::class,"mesNotifications"]);
+    Route::get("/mesNotificationsNonLues",[App\Http\Controllers\EtudiantController::class,"mesNotificationsNonLues"]);
 });
