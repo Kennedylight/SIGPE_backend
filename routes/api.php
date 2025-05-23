@@ -47,11 +47,21 @@ Route::get('/sessions/{id}/inscrits', [App\Http\Controllers\PresenceController::
 // Route::post('/enseignants/device-token', [App\Http\Controllers\EnseignantController::class, 'updateDeviceToken']);
 Route::post('/etudiants/{id}/device-token', [App\Http\Controllers\EtudiantController::class, 'updateDeviceToken']);
 Route::post('/enseignants/{id}/device-token', [App\Http\Controllers\EnseignantController::class, 'updateDeviceToken']);
-Route::get('/test-fcm', function () {
-    $etudiant = \App\Models\Etudiant::find(1);
-    $controller = new SessionController(); // Crée une instance
-    $controller->envoyerNotificationEtudiant($etudiant, 'Test de notification');
+// Route::get('/test-fcm', function () {
+//     $etudiant = \App\Models\Etudiant::find(1);
+//     $controller = new SessionController(); // Crée une instance
+//     $controller->envoyerNotificationEtudiant($etudiant, 'Test de notification');
+// });
+// Route::middleware('auth:enseignant-api')->get('/notifications', function (Request $request) {
+//     return $request->user()->notifications;
+// });
+Route::middleware('auth:etudiant-api')->get('/notifications', function (Request $request) {
+    return $request->user()->notifications;
 });
+
+// Route::middleware('auth:api')->get('/notifications', function (Request $request) {
+//     return $request->user()->notifications;
+// });
 
 
 
