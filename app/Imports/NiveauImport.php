@@ -14,9 +14,13 @@ class NiveauImport implements ToModel, WithHeadingRow
     */
     public function model(array $row)
     {
+        $niveau = Niveau::where('code' , $row['code'])->first();
+
+        if(!$niveau){
         return new Niveau([
               'code' => $row['code'],
               'nom'  => $row['nom'],    
         ]);
+    }
     }
 }
