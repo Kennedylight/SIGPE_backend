@@ -18,6 +18,8 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+
+Route::post("/changerStatut",[App\Http\Controllers\PresenceController::class,"changerStatut"]);
 Route::put("/modifierEtudiant",[App\Http\Controllers\EtudiantController::class,"modifier"]);
 Route::post("/loginEtudiant",[App\Http\Controllers\EtudiantController::class,"login"]);
 Route::post("/registerEtudiant",[App\Http\Controllers\EtudiantController::class,"store"]);
