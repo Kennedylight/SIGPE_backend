@@ -29,7 +29,7 @@ class Etudiant extends Authenticatable
         return $this->belongsToMany(Session::class);
     }
     public function filiere(){
-        return $this->belongsTo(Filere::class);
+        return $this->belongsTo(Filiere::class);
     }
     public function niveau(){
         return $this->belongsTo(Niveau::class);

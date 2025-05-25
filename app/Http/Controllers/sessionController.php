@@ -155,7 +155,10 @@ public function lancerSession(Request $request, $id)
         ], [
             'statut' => 'absent'
         ]);
+        $etudiant->notify(new SessionLancee($session));
+      
     }
+    return response()->json("Une notification a ete envoyer a tous les utilisateurs");
 
     // 4. Envoi de la notification
     // Notification::send($etudiants, new SessionLancee($session));
