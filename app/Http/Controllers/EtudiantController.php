@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\EtudiantsImport;
+use Illuminate\Support\Facades\Storage;
 
 class EtudiantController extends Controller
 {
@@ -80,6 +81,7 @@ class EtudiantController extends Controller
 
     }
      // Notifications (lues + non lues)
+
 public function mesNotifications()
 {
    
@@ -125,11 +127,38 @@ public function mesNotificationsNonLues()
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+   
+    public function modifier(Request $request, $id)
     {
-        //
-    }
+        $etudiant = Etudiant::findOrFail($id);
+    
+        $request->validate([
+            'nom' => 'required|string',
+            'prenom' => 'required|string',
+            'email' => 'required|email',
+            'matricule' => 'required|string',
+            "password" => "require|string",
+            'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+        ]);
 
+        // Mise à jour des données sauf la photo
+        $etudiant->update($request->except('photo'));
+    
+        // Gestion de la photo si nouvelle
+        if ($request->hasFile('photo')) {
+            // Supprimer l'ancienne si existe
+            if ($etudiant->photo && Storage::disk('public')->exists($etudiant->photo)) {
+                Storage::disk('public')->delete($etudiant->photo);
+            }
+    
+            $photoPath = $request->file('photo')->store('etudiants', 'public');
+            $etudiant->photo = $photoPath;
+            $etudiant->save();
+        }
+    
+        return response()->json('success', 'Étudiant mis à jour avec succès.');
+    }
+    
     /**
      * Update the specified resource in storage.
      *
