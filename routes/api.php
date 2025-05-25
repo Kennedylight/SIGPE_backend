@@ -43,8 +43,8 @@ Route::post('/enseignants/byfiliereniveau', [App\Http\Controllers\EnseignantCont
 Route::post("/matieres/byfiliereniveau", [App\Http\Controllers\MatieresController::class, "getMatieresByFiliereAndNiveau"]); 
 Route::post('/sessions/{id}/lancer', [App\Http\Controllers\sessionController::class, 'lancerSession']);
 Route::get('/sessions/{id}/inscrits', [App\Http\Controllers\PresenceController::class, 'getInscritsParSession']);
-Route::post('/sessionsParSemaineCourante', [App\Http\Controllers\sessionController::class, 'sessionsParSemaineCourante']);
-Route::post('/sessionParJourCourant', [App\Http\Controllers\sessionController::class, 'sessionParJourCourant']);
+Route::get('/sessionsParSemaineCourante', [App\Http\Controllers\sessionController::class, 'sessionsParSemaineCourante']);
+Route::get('/sessionParJourCourant', [App\Http\Controllers\sessionController::class, 'sessionParJourCourant']);
 // Route::post('/etudiants/device-token', [App\Http\Controllers\EtudiantController::class, 'updateDeviceToken']);
 // Route::post('/enseignants/device-token', [App\Http\Controllers\EnseignantController::class, 'updateDeviceToken']);
 Route::post('/etudiants/{id}/device-token', [App\Http\Controllers\EtudiantController::class, 'updateDeviceToken']);
