@@ -14,9 +14,19 @@ use Notifiable;
 use App\Notifications\SessionLancee;
 use Illuminate\Support\Facades\Notification;
 
+use App\Services\FirebaseNotificationService;
+
+
 class sessionController extends Controller
 {
     // Ajoué per le dev du FRONT END --------------------------------------------------------------------
+    protected $firebaseService;
+
+    public function __construct(FirebaseNotificationService $firebaseService)
+    {
+        $this->firebaseService = $firebaseService;
+    }
+    
 public function sessionsParFiliereEtNiveau(Request $request)
 {
     $request->validate([
@@ -101,31 +111,71 @@ public function destroy($id)
     return response()->json(['message' => 'Session supprimée avec succès.']);
 }
 
+// public function lancerSession(Request $request, $id)
+// {
+//     $session = Session::findOrFail($id);
+
+//     // 1. Mettre à jour le statut
+//     $session->statut = 'En cours';
+//     $session->save();
+
+//     // 2. Récupérer les étudiants liés à la filière et au niveau
+//     $etudiants = Etudiant::where('filiere_id', $session->filiere_id)
+//                         ->where('niveau_id', $session->niveau_id)
+//                         ->get();
+
+//     // 3. Créer les présences
+//     foreach ($etudiants as $etudiant) {
+//         Presence::create([
+//             'session_id' => $session->id,
+//             'etudiant_id' => $etudiant->id,
+//             'statut' => 'absent'
+//         ]);
+       
+//     }
+//         Notification::send($etudiants, new SessionLancee($session));
+//         return response()->json("Une notification a ete envoyer a tous les utilisateurs");
+// }
 public function lancerSession(Request $request, $id)
 {
     $session = Session::findOrFail($id);
 
-    // 1. Mettre à jour le statut
     $session->statut = 'En cours';
     $session->save();
 
-    // 2. Récupérer les étudiants liés à la filière et au niveau
     $etudiants = Etudiant::where('filiere_id', $session->filiere_id)
                         ->where('niveau_id', $session->niveau_id)
+                        ->whereNotNull('device_token')
                         ->get();
 
-    // 3. Créer les présences
     foreach ($etudiants as $etudiant) {
-        Presence::create([
+        Presence::firstOrCreate([
             'session_id' => $session->id,
             'etudiant_id' => $etudiant->id,
+        ], [
             'statut' => 'absent'
         ]);
-       
     }
-        Notification::send($etudiants, new SessionLancee($session));
-        return response()->json("Une notification a ete envoyer a tous les utilisateurs");
+
+    // 4. Envoi de la notification
+    // Notification::send($etudiants, new SessionLancee($session));
+    foreach ($etudiants as $etudiant) {
+        $deviceToken = $etudiant->device_token;
+
+        if ($deviceToken) {
+            $title = "Session lancée";
+            $body = "Votre session '{$session->matiere_id}' vient de commencer.";
+
+            $this->firebaseService->sendNotification($deviceToken, $title, $body);
+        }
+    }
+
+    return response()->json([
+        'message' => 'Une notification a été envoyée à tous les étudiants concernés.',
+        'etudiants_notifies' => $etudiants->pluck('id')
+    ]);
 }
+
 
 
 }

@@ -58,6 +58,9 @@ Route::post('/enseignants/{id}/device-token', [App\Http\Controllers\EnseignantCo
 Route::middleware('auth:etudiant-api')->get('/notifications', function (Request $request) {
     return $request->user()->notifications;
 });
+Route::post('/save-fcm-token', [App\Http\Controllers\FirebaseTokenController::class, 'store']);
+Route::post('send-fcm-notification', [App\Http\Controllers\FcmController::class, 'sendFcmNotification']);
+
 
 // Route::middleware('auth:api')->get('/notifications', function (Request $request) {
 //     return $request->user()->notifications;

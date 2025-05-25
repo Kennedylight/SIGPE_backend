@@ -39,7 +39,9 @@ class Etudiant extends Authenticatable
     {
         return $this->hasMany(Presence::class);
     }
-
-  
+    public function routeNotificationForFcm()
+    {
+        return $this->device_token; // ou fcm_token si tu renommes la colonne
+    }
 
 }

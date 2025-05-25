@@ -37,5 +37,9 @@ public function sessions()
 {
     return $this->belongsToMany(Session::class);
 }
+public function routeNotificationForFcm()
+    {
+        return $this->device_token; // ou fcm_token si tu renommes la colonne
+    }
 
 }
