@@ -41,7 +41,35 @@ public function sessionsParFiliereEtNiveau(Request $request)
 
     return response()->json($sessions);
 }
+public function sessionsParSemaineCourante()
+{
+    $weekStart = Carbon::now()->startOfWeek(Carbon::MONDAY); // Lundi à 00:00
+    $weekEnd = Carbon::now()->endOfWeek(Carbon::SUNDAY);     // Dimanche à 23:59
 
+    $sessions = Session::where(function ($query) use ($weekStart, $weekEnd) {
+        $query->whereBetween('heure_debut', [$weekStart, $weekEnd])
+              ->orWhereBetween('heure_fin', [$weekStart, $weekEnd]);
+    })
+    ->whereIn('statut', ['en_attente', 'en_cours']) // Sessions actives
+    ->get();
+
+    return $sessions;
+}
+
+public function sessionParJourCourant()
+{
+    $todayStart = Carbon::today()->startOfDay();  // 00:00:00
+    $todayEnd = Carbon::today()->endOfDay();      // 23:59:59
+
+    $sessions = Session::where(function ($query) use ($todayStart, $todayEnd) {
+        $query->whereBetween('heure_debut', [$todayStart, $todayEnd])
+              ->orWhereBetween('heure_fin', [$todayStart, $todayEnd]);
+    })
+    ->whereIn('statut', ['en_attente', 'en_cours']) // Optional condition
+    ->get();
+
+    return $sessions;
+}
 public function index()
 {
     return response()->json(Session::all());
