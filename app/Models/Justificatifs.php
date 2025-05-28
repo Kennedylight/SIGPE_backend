@@ -13,7 +13,8 @@ class Justificatifs extends Model
         'etudiant_id',     
         'enseignant_id',     
         'piece_jointes',     
-        'matiere_id',     
+        'matiere_id',         
+        'reponse_enseignant',    
 
     ];
     public function enseignants()

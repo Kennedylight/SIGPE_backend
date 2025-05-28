@@ -21,9 +21,28 @@ class JustificatifController extends Controller
     }
 
     public function ListerLesJustificatifsParEnseignant($id){
-        $justificatifs =  Justificatifs::where("enseignant_id" , $id)->with('etudiant')->get();
+        $justificatifs =  Justificatifs::where("enseignant_id" , $id)->where('statut', '!=', 'Accepté')->with('etudiant')->get();
         return response()->json([
             'justificatifs' => $justificatifs
         ]);
+    }
+
+    public function renvoyerUnJustificatif(Request $request , $id){
+        $justificatif = Justificatifs::where("id" , $id)->first();
+        $request->validate([
+            'reponse_enseignant' => 'required|string|max:255',            
+        ]);
+
+        $justificatif->reponse_enseignant = $request->reponse_enseignant;
+        $justificatif->statut = "Renvoyé";
+        $justificatif->update();
+        return response()->json(["message"=> "justificatif renvoyer" , "justificatif"=>$justificatif]);
+    }
+    public function ModifierUnJustificatifApresRenvoi(Request $request ,$id){
+      $justificatif = Justificatifs::findOrFail($id);
+      $justificatif->statut = "Nouveau";
+      $justificatif->update($request->all());
+      return response()->json(['message'=>'Votre justification a ete renvoyer' , 'justificatif'=>$justificatif]);
+  
     }
 }

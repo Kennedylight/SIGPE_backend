@@ -19,6 +19,9 @@ use Illuminate\Support\Facades\Route;
 */
 
 //routes des justificatifs
+
+Route::post("/ModifierUnJustificatifApresRenvoi/{id}",[App\Http\Controllers\JustificatifController::class,"ModifierUnJustificatifApresRenvoi"]);
+Route::post("/renvoyerUnJustificatif/{id}",[App\Http\Controllers\JustificatifController::class,"renvoyerUnJustificatif"]);
 Route::post("/CreationDeJustificatif",[App\Http\Controllers\JustificatifController::class,"CreationDeJustificatif"]);
 Route::post("/ListerLesJustificatifsParEnseignant/{id}",[App\Http\Controllers\JustificatifController::class,"ListerLesJustificatifsParEnseignant"]);
 //fin des justificatifs
