@@ -22,7 +22,7 @@ class JustificatifController extends Controller
     }
 
     public function ListerLesJustificatifsParEnseignant($id){
-        $justificatifs =  Justificatifs::where("enseignant_id" , $id)->where('statut', '!=', 'Accepté')->with('etudiant')->get();
+        $justificatifs =  Justificatifs::where("enseignant_id" , $id)->where('statut', '!=', 'Accepté')->with('etudiant')->with("presence")->get();
         return response()->json([
             'justificatifs' => $justificatifs
         ]);
