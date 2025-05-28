@@ -22,7 +22,7 @@ class JustificatifController extends Controller
     }
 
     public function ListerLesJustificatifsParEnseignant($id){
-        $justificatifs =  Justificatifs::where("enseignant_id" , $id)->where('statut', '!=', 'Accepté')->with('etudiant')->with("presence")->get();
+        $justificatifs =  Justificatifs::where("enseignant_id" , $id)->where('statut', '!=', 'Accepté')->with('etudiant')->get();
         return response()->json([
             'justificatifs' => $justificatifs
         ]);
@@ -52,5 +52,16 @@ class JustificatifController extends Controller
         $justificatif->update();
         return response()->json(['message'=>'Votre justification a ete refusé' ]);
     
+      }
+      public function AccepterUnJustification($id){
+        $justificatif = Justificatifs::where('id',$id)->with("etudiant" ,"presence")->first();
+        $justificatif->statut = "Accepté";
+        $justificatif->presence->statut = "présent";
+        $justificatif->update();
+        if ($justificatif->presence) {
+            $justificatif->presence->statut = "présent";
+            $justificatif->presence->save(); 
+        }
+        return response()->json($justificatif);
       }
 }
