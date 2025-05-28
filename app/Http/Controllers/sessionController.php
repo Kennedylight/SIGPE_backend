@@ -60,10 +60,10 @@ public function sessionsParSemaineCourante()
     $weekEnd = Carbon::now()->endOfWeek(Carbon::SUNDAY);     // Dimanche à 23:59
 
     $sessions = Session::where(function ($query) use ($weekStart, $weekEnd) {
+        
         $query->whereBetween('heure_debut', [$weekStart, $weekEnd])
               ->orWhereBetween('heure_fin', [$weekStart, $weekEnd]);
     })
-    ->whereIn('statut', ['en_attente', 'en_cours']) // Sessions actives
     ->get();
 
     return $sessions;
@@ -77,8 +77,7 @@ public function sessionParJourCourant()
     $sessions = Session::where(function ($query) use ($todayStart, $todayEnd) {
         $query->whereBetween('heure_debut', [$todayStart, $todayEnd])
               ->orWhereBetween('heure_fin', [$todayStart, $todayEnd]);
-    })
-    ->whereIn('statut', ['en_attente', 'en_cours']) // Optional condition
+    }) // Optional condition
     ->get();
 
     return $sessions;

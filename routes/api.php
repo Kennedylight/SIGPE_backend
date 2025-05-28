@@ -17,6 +17,11 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+
+//routes des justificatifs
+Route::post("/CreationDeJustificatif",[App\Http\Controllers\JustificatifController::class,"CreationDeJustificatif"]);
+Route::post("/ListerLesJustificatifsParEnseignant/{id}",[App\Http\Controllers\JustificatifController::class,"ListerLesJustificatifsParEnseignant"]);
+//fin des justificatifs
 Route::post("/changerStatut",[App\Http\Controllers\PresenceController::class,"changerStatut"]);
 // Route::put("/modifierEtudiant",[App\Http\Controllers\EtudiantController::class,"modifier"]);
 Route::post("/modifierEtudiant", [App\Http\Controllers\EtudiantController::class, "modifier"]);
@@ -86,8 +91,7 @@ Route::post("/matieres/byfiliereniveau", [App\Http\Controllers\MatieresControlle
 Route::post('/sessions/{id}/lancer', [App\Http\Controllers\SessionController::class, 'lancerSession']);
 Route::post('/sessions/{id}/terminer', [App\Http\Controllers\SessionController::class, 'terminerSession']);
 Route::get('/sessions/{id}/inscrits', [App\Http\Controllers\PresenceController::class, 'getInscritsParSession']);
-Route::get('/sessionsParSemaineCourante', [App\Http\Controllers\SessionController::class, 'sessionsParSemaineCourante']);
-Route::get('/sessionParJourCourant', [App\Http\Controllers\SessionController::class, 'sessionParJourCourant']);
+
 // Route::post('/etudiants/device-token', [App\Http\Controllers\EtudiantController::class, 'updateDeviceToken']);
 // Route::post('/enseignants/device-token', [App\Http\Controllers\EnseignantController::class, 'updateDeviceToken']);
 Route::post('/etudiants/{id}/device-token', [App\Http\Controllers\EtudiantController::class, 'updateDeviceToken']);
@@ -100,11 +104,16 @@ Route::post('/enseignants/{id}/device-token', [App\Http\Controllers\EnseignantCo
 // Route::middleware('auth:enseignant-api')->get('/notifications', function (Request $request) {
 //     return $request->user()->notifications;
 // });
+
+// afficher les sessions par jour et par semaine
+Route::get('/sessionsParSemaineCourante', [App\Http\Controllers\SessionController::class, 'sessionsParSemaineCourante']);
+Route::get('/sessionParJourCourant', [App\Http\Controllers\SessionController::class, 'sessionParJourCourant']); 
+
 Route::middleware('auth:etudiant-api')->get('/notifications', function (Request $request) {
     return $request->user()->notifications;
 });
-Route::post('/save-fcm-token', [App\Http\Controllers\FirebaseTokenController::class, 'store']);
-Route::post('send-fcm-notification', [App\Http\Controllers\FcmController::class, 'sendFcmNotification']);
+// Route::post('/save-fcm-token', [App\Http\Controllers\FirebaseTokenController::class, 'store']);
+// Route::post('send-fcm-notification', [App\Http\Controllers\FcmController::class, 'sendFcmNotification']);
 
 
 // Route::middleware('auth:api')->get('/notifications', function (Request $request) {
