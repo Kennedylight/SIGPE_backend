@@ -45,4 +45,11 @@ class JustificatifController extends Controller
       return response()->json(['message'=>'Votre justification a ete renvoyer' , 'justificatif'=>$justificatif]);
   
     }
+    public function RefuserUnJustificatif($id){
+        $justificatif = Justificatifs::findOrFail($id);
+        $justificatif->statut = "Refusé";
+        $justificatif->update();
+        return response()->json(['message'=>'Votre justification a ete refusé' ]);
+    
+      }
 }
