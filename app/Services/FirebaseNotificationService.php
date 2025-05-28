@@ -101,9 +101,47 @@ class FirebaseNotificationService
     // }
 
 
-public function sendNotification($deviceToken, $title, $body, $redirectUrl = '/student-course')
+// public function sendNotification($deviceToken, $title, $body, $redirectUrl = '/student-course')
+// {
+//     $url = "https://fcm.googleapis.com/v1/projects/{$this->projectId}/messages:send";
+
+//     $message = [
+//         'message' => [
+//             'token' => $deviceToken,
+//             'notification' => [
+//                 'title' => $title,
+//                 'body' => $body,
+//             ],
+//             'data' => [
+//                 'redirect' => $redirectUrl, // Utilisé dans le foreground
+//             ],
+//             'webpush' => [
+//                 'fcm_options' => [
+//                     'link' => "http://localhost:8100$redirectUrl" // Utilisé en background
+//                 ]
+//             ]
+//         ]
+//     ];
+
+//     $response = Http::withToken($this->accessToken)
+//         ->withHeaders(['Content-Type' => 'application/json'])
+//         ->post($url, $message);
+
+//     return $response->json();
+// }
+
+public function sendNotification($deviceToken, $title, $body, $redirectUrl = '/student-course', $data = [], $type = 'info')
 {
     $url = "https://fcm.googleapis.com/v1/projects/{$this->projectId}/messages:send";
+
+    // ✅ Force $data à être un tableau
+    if (!is_array($data)) {
+        $data = [];
+    }
+
+    // Ajoute les champs à la data
+    $data['redirect'] = $redirectUrl;
+    $data['type'] = $type;
 
     $message = [
         'message' => [
@@ -112,12 +150,10 @@ public function sendNotification($deviceToken, $title, $body, $redirectUrl = '/s
                 'title' => $title,
                 'body' => $body,
             ],
-            'data' => [
-                'redirect' => $redirectUrl, // Utilisé dans le foreground
-            ],
+            'data' => $data,
             'webpush' => [
                 'fcm_options' => [
-                    'link' => "http://localhost:8100$redirectUrl" // Utilisé en background
+                    'link' => "http://localhost:8100$redirectUrl"
                 ]
             ]
         ]
@@ -129,6 +165,8 @@ public function sendNotification($deviceToken, $title, $body, $redirectUrl = '/s
 
     return $response->json();
 }
+
+
 
 
 }

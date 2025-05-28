@@ -54,26 +54,34 @@ Route::post('/NiveauImport', [App\Http\Controllers\NiveauController::class, 'Imp
 
 // Ajoutés par le dev du FRONT END ------------------------------------------------------------------------------------------
 
-// Pour les étudiants
-Route::middleware('auth:etudiant')->group(function () {
+Route::middleware(['auth:etudiant-api,enseignant-api,admin-api'])->group(function () {
     Route::get('/notifications', [App\Http\Controllers\NotificationController::class, 'index']);
     Route::post('/notifications/{id}/read', [App\Http\Controllers\NotificationController::class, 'markAsRead']);
     Route::post('/notifications/read-all', [App\Http\Controllers\NotificationController::class, 'markAllAsRead']);
+    Route::delete('/notifications/{id}', [App\Http\Controllers\NotificationController::class, 'destroy']);
+    Route::delete('/notifications', [App\Http\Controllers\NotificationController::class, 'destroyAll']);
 });
 
-// Pour les enseignants
-Route::middleware('auth:enseignant')->group(function () {
-    Route::get('/notifications', [App\Http\Controllers\NotificationController::class, 'index']);
-    Route::post('/notifications/{id}/read', [App\Http\Controllers\NotificationController::class, 'markAsRead']);
-    Route::post('/notifications/read-all', [App\Http\Controllers\NotificationController::class, 'markAllAsRead']);
-});
+// // Pour les étudiants
+// Route::middleware('auth:etudiant-api')->group(function () {
+//     Route::get('/notifications', [App\Http\Controllers\NotificationController::class, 'index']);
+//     Route::post('/notifications/{id}/read', [App\Http\Controllers\NotificationController::class, 'markAsRead']);
+//     Route::post('/notifications/read-all', [App\Http\Controllers\NotificationController::class, 'markAllAsRead']);
+// });
 
-// Pour les admins (si besoin)
-Route::middleware('auth:admin')->group(function () {
-    Route::get('/notifications', [App\Http\Controllers\NotificationController::class, 'index']);
-    Route::post('/notifications/{id}/read', [App\Http\Controllers\NotificationController::class, 'markAsRead']);
-    Route::post('/notifications/read-all', [App\Http\Controllers\NotificationController::class, 'markAllAsRead']);
-});
+// // Pour les enseignants
+// Route::middleware('auth:enseignant-api')->group(function () {
+//     Route::get('/notifications', [App\Http\Controllers\NotificationController::class, 'index']);
+//     Route::post('/notifications/{id}/read', [App\Http\Controllers\NotificationController::class, 'markAsRead']);
+//     Route::post('/notifications/read-all', [App\Http\Controllers\NotificationController::class, 'markAllAsRead']);
+// });
+
+// // Pour les admins
+// Route::middleware('auth:admin-api')->group(function () {
+//     Route::get('/notifications', [App\Http\Controllers\NotificationController::class, 'index']);
+//     Route::post('/notifications/{id}/read', [App\Http\Controllers\NotificationController::class, 'markAsRead']);
+//     Route::post('/notifications/read-all', [App\Http\Controllers\NotificationController::class, 'markAllAsRead']);
+// });
 
 
 Route::middleware('auth:etudiant-api')->get('/etudiant/me', function (Request $request) {

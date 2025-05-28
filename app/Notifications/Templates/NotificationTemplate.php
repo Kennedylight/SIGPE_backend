@@ -31,5 +31,15 @@ class NotificationTemplate
         ];
     }
 
+    public static function courseUpdated($matiere, $heure)
+    {
+        return [
+            'title' => 'Cours modifié',
+            'message' => "Le cours de $matiere a été modifié...",
+            'type' => 'warning', // ou 'alert', selon l’usage
+        ];
+    }
+
+
     // Tu peux ajouter autant de templates que tu veux ici
 }

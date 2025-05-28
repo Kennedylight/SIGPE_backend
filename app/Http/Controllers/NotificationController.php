@@ -6,37 +6,59 @@ use Illuminate\Http\Request;
 
 class NotificationController extends Controller
 {
-    public function index(Request $request)
+    public function __construct()
     {
-        $user = $request->user();
+        $this->middleware('auth:etudiant-api,enseignant-api,admin-api');
+    }
+
+    private function getAuthenticatedUser()
+    {
+        // Cette méthode est maintenant plus simple car le middleware a déjà fait le travail
+        return auth()->user();
+    }
+
+    public function index()
+    {
+        $user = $this->getAuthenticatedUser();
+        
         return response()->json([
             'all' => $user->notifications,
             'unread' => $user->unreadNotifications
         ]);
     }
 
-    // public function markAsRead(Request $request, $id)
-    // {
-    //     $notification = $request->user()->notifications()->findOrFail($id);
-    //     $notification->markAsRead();
-
-    //     return response()->json(['message' => 'Notification marquée comme lue.']);
-    // }
     public function markAsRead($id)
     {
-        $notification = auth()->user()->notifications()->where('id', $id)->first();
-
-        if (!$notification) {
-            return response()->json(['error' => 'Notification non trouvée'], 404);
-        }
-
-        $notification->markAsRead(); // ✅ Met à jour la colonne `read_at`
+        $user = $this->getAuthenticatedUser();
+        $notification = $user->notifications()->where('id', $id)->firstOrFail();
+        
+        $notification->markAsRead();
         return response()->json(['success' => true]);
     }
 
-    public function markAllAsRead(Request $request)
+    public function markAllAsRead()
     {
-        $request->user()->unreadNotifications->markAsRead();
+        $user = $this->getAuthenticatedUser();
+        $user->unreadNotifications->markAsRead();
+        
         return response()->json(['message' => 'Toutes les notifications ont été marquées comme lues.']);
+    }
+
+    public function destroy($id)
+    {
+        $user = $this->getAuthenticatedUser();
+        $notification = $user->notifications()->where('id', $id)->firstOrFail();
+        
+        $notification->delete();
+        
+        return response()->json(['success' => true, 'message' => 'Notification supprimée avec succès']);
+    }
+
+    public function destroyAll()
+    {
+        $user = $this->getAuthenticatedUser();
+        $user->notifications()->delete();
+        
+        return response()->json(['success' => true, 'message' => 'Toutes les notifications ont été supprimées']);
     }
 }
