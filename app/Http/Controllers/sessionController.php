@@ -14,6 +14,10 @@ use Notifiable;
 use App\Notifications\SessionLancee;
 use Illuminate\Support\Facades\Notification;
 
+use App\Notifications\MessageNotification;
+use App\Notifications\Templates\NotificationTemplate;
+
+
 use App\Services\FirebaseNotificationService;
 
 
@@ -26,6 +30,15 @@ class sessionController extends Controller
     {
         $this->firebaseService = $firebaseService;
     }
+
+public function getUpcomingSession() {
+    $session = Session::where('statut', 'À venir')
+                      ->where('heure_debut', '<=', now())
+                      ->first();
+
+    return response()->json($session);
+}
+
     
 public function sessionsParFiliereEtNiveau(Request $request)
 {
@@ -70,6 +83,45 @@ public function sessionParJourCourant()
 
     return $sessions;
 }
+
+public function filtrerSessions(Request $request)
+{
+    $request->validate([
+        'filiere_id' => 'required|integer|exists:filieres,id',
+        'niveau_id' => 'required|integer|exists:niveaux,id',
+        'periode' => 'nullable|in:jour,semaine',
+        'statut' => 'nullable|in:À venir,En cours,Terminée',
+    ]);
+
+    $query = Session::where('filiere_id', $request->filiere_id)
+        ->where('niveau_id', $request->niveau_id);
+
+    if ($request->periode === 'jour') {
+        $start = Carbon::today()->startOfDay();
+        $end = Carbon::today()->endOfDay();
+    } elseif ($request->periode === 'semaine') {
+        $start = Carbon::now()->startOfWeek(Carbon::MONDAY);
+        $end = Carbon::now()->endOfWeek(Carbon::SUNDAY);
+    }
+
+    if (isset($start) && isset($end)) {
+        $query->where(function ($q) use ($start, $end) {
+            $q->whereBetween('heure_debut', [$start, $end])
+              ->orWhereBetween('heure_fin', [$start, $end]);
+        });
+    }
+
+    if ($request->statut) {
+        $query->where('statut', $request->statut);
+    }
+
+    $sessions = $query->with(['matiere', 'salle', 'enseignant', 'niveau', 'filiere'])
+        ->orderBy('heure_debut')
+        ->get();
+
+    return response()->json($sessions);
+}
+
 public function index()
 {
     return response()->json(Session::all());
@@ -133,11 +185,45 @@ public function update(Request $request, $id)
 
 public function destroy($id)
 {
-    $session = Session::findOrFail($id);
+    $session = Session::with(['matiere', 'niveau', 'filiere'])->findOrFail($id);
+
+    // Récupérer les infos pour la notification
+    $matiere = $session->matiere->nom ?? 'matière inconnue';
+    $heure = $session->heure_debut ?? 'heure inconnue';
+    $filiereId = $session->filiere_id;
+    $niveauId = $session->niveau_id;
+
+    // Supprimer la session
     $session->delete();
 
-    return response()->json(['message' => 'Session supprimée avec succès.']);
+    // Récupérer les étudiants de la même filière + niveau
+    $etudiants = Etudiant::where('filiere_id', $filiereId)
+                         ->where('niveau_id', $niveauId)
+                         ->get();
+
+    // Créer le template
+    $template = NotificationTemplate::courseCancelled($matiere, $heure);
+
+    // Envoyer la notification à chaque étudiant
+    foreach ($etudiants as $etudiant) {
+        $etudiant->notify(new MessageNotification(
+            $template['title'],
+            $template['message'],
+            $template['type']
+        ));
+    }
+
+    return response()->json(['message' => 'Session supprimée et notifications envoyées avec succès.']);
 }
+
+
+// public function destroy($id)
+// {
+//     $session = Session::findOrFail($id);
+//     $session->delete();
+
+//     return response()->json(['message' => 'Session supprimée avec succès.']);
+// }
 
 // public function lancerSession(Request $request, $id)
 // {
@@ -183,13 +269,40 @@ public function lancerSession(Request $request, $id)
         ], [
             'statut' => 'absent'
         ]);
-        $etudiant->notify(new SessionLancee($session));
-      
     }
-    return response()->json("Une notification a ete envoyer a tous les utilisateurs");
 
     // 4. Envoi de la notification
     // Notification::send($etudiants, new SessionLancee($session));
+    // foreach ($etudiants as $etudiant) {
+    //     $deviceToken = $etudiant->device_token;
+
+    //     logger()->info("Envoi notification à {$etudiant->id} / token: {$deviceToken}");
+
+    //     if ($deviceToken) {
+    //         $title = "Session lancée";
+    //         $body = "Le cours de {$session->matiere->nom} commence en salle {$session->salle->nom}.";
+
+    //         $presence = Presence::where('session_id', $session->id)
+    //                             ->where('etudiant_id', $etudiant->id)
+    //                             ->first();
+
+    //         $this->firebaseService->sendNotification(
+    //             $deviceToken,
+    //             $title,
+    //             $body,
+    //             '/student-course',
+    //             [
+    //                 'session_id' => $session->id,
+    //                 'presence_id' => optional($presence)->id,
+    //                 'course' => $session->matiere->nom,
+    //                 'room' => $session->salle->nom,
+    //                 'time' => $session->heure_debut,
+    //             ]
+    //         );
+    //     }
+    // }
+
+
     foreach ($etudiants as $etudiant) {
         $deviceToken = $etudiant->device_token;
 
@@ -204,6 +317,20 @@ public function lancerSession(Request $request, $id)
     return response()->json([
         'message' => 'Une notification a été envoyée à tous les étudiants concernés.',
         'etudiants_notifies' => $etudiants->pluck('id')
+    ]);
+}
+
+public function terminerSession(Request $request, $id)
+{
+    $session = Session::findOrFail($id);
+
+    $session->statut = 'Terminé';
+    $session->save();
+
+    return response()->json([
+        'message' => 'La session a été marquée comme terminée.',
+        'session_id' => $session->id,
+        'nouveau_statut' => $session->statut
     ]);
 }
 

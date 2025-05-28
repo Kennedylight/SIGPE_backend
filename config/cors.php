@@ -20,6 +20,7 @@ return [
     'allowed_methods' => ['*'],
 
     'allowed_origins' => ['*'],
+    //'allowed_origins' => ['https://localhost', 'capacitor://localhost', 'https://066a-129-0-60-58.ngrok-free.app'],
 
     'allowed_origins_patterns' => [],
 

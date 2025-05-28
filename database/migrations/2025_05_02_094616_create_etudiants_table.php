@@ -20,11 +20,13 @@ class CreateEtudiantsTable extends Migration
             $table->string('prenom')->nullable();
             $table->string('sexe');
             $table->string('Date_nais');
-            $table->double("longitude");
-            $table->double("latitude");
+            $table->double("longitude")->nullable();
+            $table->double("latitude")->nullable();
             $table->string('email')->nullable();
-            $table->foreignId('filiere_id')->constrained('filieres')->onDelete('set null');
-            $table->foreignId('niveau_id')->constrained('niveaux')->onDelete('set null'); // Ex : L1, L2, L3, M1...
+            $table->foreignId('filiere_id')->nullable()->constrained('filieres')->onDelete('set null');
+            $table->foreignId('niveau_id')->nullable()->constrained('niveaux')->onDelete('set null');
+            // $table->foreignId('filiere_id')->constrained('filieres')->onDelete('set null');
+            // $table->foreignId('niveau_id')->constrained('niveaux')->onDelete('set null'); // Ex : L1, L2, L3, M1...
             $table->string('photo')->nullable(); 
             $table->string('utilisateur')->default("ETU");
             $table->string('password')->default(Hash::make("00000000")); 

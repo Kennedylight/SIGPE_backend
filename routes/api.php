@@ -7,7 +7,6 @@ use App\Http\Controllers\SalleController;
 use App\Http\Controllers\EnseignantController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -19,7 +18,9 @@ use Illuminate\Support\Facades\Route;
 |
 */
 Route::post("/changerStatut",[App\Http\Controllers\PresenceController::class,"changerStatut"]);
-Route::put("/modifierEtudiant",[App\Http\Controllers\EtudiantController::class,"modifier"]);
+// Route::put("/modifierEtudiant",[App\Http\Controllers\EtudiantController::class,"modifier"]);
+Route::post("/modifierEtudiant", [App\Http\Controllers\EtudiantController::class, "modifier"]);
+Route::post("/modifierEnseignant", [App\Http\Controllers\EnseignantController::class, "modifier"]);
 Route::post("/loginEtudiant",[App\Http\Controllers\EtudiantController::class,"login"]);
 Route::post("/registerEtudiant",[App\Http\Controllers\EtudiantController::class,"store"]);
 Route::post("/loginEnseignant",[App\Http\Controllers\EnseignantController::class,"login"]);
@@ -40,10 +41,50 @@ Route::post('/NiveauImport', [App\Http\Controllers\NiveauController::class, 'Imp
 
 // Ajoutés par le dev du FRONT END ------------------------------------------------------------------------------------------
 
+// Pour les étudiants
+Route::middleware('auth:etudiant')->group(function () {
+    Route::get('/notifications', [App\Http\Controllers\NotificationController::class, 'index']);
+    Route::post('/notifications/{id}/read', [App\Http\Controllers\NotificationController::class, 'markAsRead']);
+    Route::post('/notifications/read-all', [App\Http\Controllers\NotificationController::class, 'markAllAsRead']);
+});
+
+// Pour les enseignants
+Route::middleware('auth:enseignant')->group(function () {
+    Route::get('/notifications', [App\Http\Controllers\NotificationController::class, 'index']);
+    Route::post('/notifications/{id}/read', [App\Http\Controllers\NotificationController::class, 'markAsRead']);
+    Route::post('/notifications/read-all', [App\Http\Controllers\NotificationController::class, 'markAllAsRead']);
+});
+
+// Pour les admins (si besoin)
+Route::middleware('auth:admin')->group(function () {
+    Route::get('/notifications', [App\Http\Controllers\NotificationController::class, 'index']);
+    Route::post('/notifications/{id}/read', [App\Http\Controllers\NotificationController::class, 'markAsRead']);
+    Route::post('/notifications/read-all', [App\Http\Controllers\NotificationController::class, 'markAllAsRead']);
+});
+
+
+Route::middleware('auth:etudiant-api')->get('/etudiant/me', function (Request $request) {
+    return $request->user();
+});
+
+Route::middleware('auth:enseignant-api')->get('/enseignant/me', function (Request $request) {
+    return $request->user();
+});
+
+Route::middleware('auth:admin-api')->get('/admin/me', function (Request $request) {
+    return $request->user();
+});
+
+Route::post('/presences', [App\Http\Controllers\PresenceController::class, 'ajouterPresence']);
+Route::post('/etudiants/{id}/location', [App\Http\Controllers\EtudiantController::class, 'updateLocation']);
+Route::get('/sessions/auto-lancer', [App\Http\Controllers\SessionController::class, 'getUpcomingSession']);
+Route::get('/enseignants/{id}/sessions-filtrees', [App\Http\Controllers\EnseignantController::class, 'sessionsParEnseignantFiltrees']);
+Route::get('/sessions/filter', [App\Http\Controllers\SessionController::class, 'filtrerSessions']);
 Route::get('/enseignant', [App\Http\Controllers\EnseignantController::class, 'index']);
 Route::post('/enseignants/byfiliereniveau', [App\Http\Controllers\EnseignantController::class, 'getEnseignantsByFiliereAndNiveau']);
 Route::post("/matieres/byfiliereniveau", [App\Http\Controllers\MatieresController::class, "getMatieresByFiliereAndNiveau"]); 
 Route::post('/sessions/{id}/lancer', [App\Http\Controllers\SessionController::class, 'lancerSession']);
+Route::post('/sessions/{id}/terminer', [App\Http\Controllers\SessionController::class, 'terminerSession']);
 Route::get('/sessions/{id}/inscrits', [App\Http\Controllers\PresenceController::class, 'getInscritsParSession']);
 Route::get('/sessionsParSemaineCourante', [App\Http\Controllers\SessionController::class, 'sessionsParSemaineCourante']);
 Route::get('/sessionParJourCourant', [App\Http\Controllers\SessionController::class, 'sessionParJourCourant']);

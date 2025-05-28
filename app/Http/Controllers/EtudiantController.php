@@ -11,6 +11,7 @@ use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\EtudiantsImport;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 
 class EtudiantController extends Controller
 {
@@ -95,6 +96,22 @@ public function mesNotificationsNonLues()
 }
 
 # Ajouté par le dev du FRONT END ------------------------------------------------------------------------------
+public function updateLocation(Request $request, $id)
+{
+    $etudiant = Etudiant::findOrFail($id);
+
+    $request->validate([
+        'latitude' => 'required|numeric',
+        'longitude' => 'required|numeric',
+    ]);
+
+    $etudiant->latitude = $request->latitude;
+    $etudiant->longitude = $request->longitude;
+    $etudiant->save();
+
+    return response()->json(['message' => 'Position mise à jour']);
+}
+
     public function updateDeviceToken(Request $request, $id) {
     $etudiant = Etudiant::findOrFail($id);
     $etudiant->device_token = $request->input('device_token');
@@ -116,10 +133,22 @@ public function mesNotificationsNonLues()
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Request $request)
     {
-        //
+        $user = auth('etudiant-api')->user(); // ✅ on utilise le bon guard
+
+        if (!$user) {
+            return response()->json(['message' => 'Utilisateur étudiant non trouvé'], 404);
+        }
+
+        return response()->json([
+            'etudiant' => $user,
+            'access_token' => $request->bearerToken()
+        ]);
     }
+
+
+
 
     /**
      * Show the form for editing the specified resource.
@@ -128,36 +157,115 @@ public function mesNotificationsNonLues()
      * @return \Illuminate\Http\Response
      */
    
-    public function modifier(Request $request, $id)
-    {
-        $etudiant = Etudiant::findOrFail($id);
+    // public function modifier(Request $request, $id)
+    // {
+    //     $etudiant = Etudiant::findOrFail($id);
     
+    //     $request->validate([
+    //         'nom' => 'required|string',
+    //         'prenom' => 'required|string',
+    //         'email' => 'required|email',
+    //         'matricule' => 'required|string',
+    //         "password" => "require|string",
+    //         'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+    //     ]);
+
+    //     // Mise à jour des données sauf la photo
+    //     $etudiant->update($request->except('photo'));
+    
+    //     // Gestion de la photo si nouvelle
+    //     if ($request->hasFile('photo')) {
+    //         // Supprimer l'ancienne si existe
+    //         if ($etudiant->photo && Storage::disk('public')->exists($etudiant->photo)) {
+    //             Storage::disk('public')->delete($etudiant->photo);
+    //         }
+    
+    //         $photoPath = $request->file('photo')->store('etudiants', 'public');
+    //         $etudiant->photo = $photoPath;
+    //         $etudiant->save();
+    //     }
+    
+    //     return response()->json('success', 'Étudiant mis à jour avec succès.');
+    // }
+
+    // public function modifier(Request $request)
+    // {
+    //     $id = $request->input('id');  // <-- ici c'est important
+    //     $etudiant = Etudiant::findOrFail($id);
+
+    //     $request->validate([
+    //         'nom' => 'required|string',
+    //         'prenom' => 'required|string',
+    //         'email' => 'required|email',
+    //         'matricule' => 'required|string',
+    //         'password' => 'nullable|string|min:8',
+    //         'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+    //     ]);
+
+    //     $etudiant->nom = $request->nom;
+    //     $etudiant->prenom = $request->prenom;
+    //     $etudiant->email = $request->email;
+    //     $etudiant->matricule = $request->matricule;
+
+    //     if ($request->filled('password')) {
+    //         $etudiant->password = bcrypt($request->password);
+    //     }
+
+    //     if ($request->hasFile('photo')) {
+    //         if ($etudiant->photo && Storage::disk('public')->exists($etudiant->photo)) {
+    //             Storage::disk('public')->delete($etudiant->photo);
+    //         }
+    //         $photoPath = $request->file('photo')->store('etudiants', 'public');
+    //         $etudiant->photo = $photoPath;
+    //     }
+
+    //     $etudiant->save();
+
+    //     return response()->json(['message' => 'Étudiant mis à jour avec succès.']);
+    // }
+
+    public function modifier(Request $request)
+    {
+        $id = $request->input('id');
+        $etudiant = Etudiant::findOrFail($id);
+
         $request->validate([
             'nom' => 'required|string',
             'prenom' => 'required|string',
             'email' => 'required|email',
             'matricule' => 'required|string',
-            "password" => "require|string",
+            'password' => 'nullable|string|min:8',
             'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
-        // Mise à jour des données sauf la photo
-        $etudiant->update($request->except('photo'));
-    
-        // Gestion de la photo si nouvelle
+        $etudiant->nom = $request->nom;
+        $etudiant->prenom = $request->prenom;
+        $etudiant->email = $request->email;
+        $etudiant->matricule = $request->matricule;
+
+        if ($request->filled('password')) {
+            $etudiant->password = bcrypt($request->password);
+        }
+
         if ($request->hasFile('photo')) {
-            // Supprimer l'ancienne si existe
             if ($etudiant->photo && Storage::disk('public')->exists($etudiant->photo)) {
                 Storage::disk('public')->delete($etudiant->photo);
             }
-    
             $photoPath = $request->file('photo')->store('etudiants', 'public');
             $etudiant->photo = $photoPath;
-            $etudiant->save();
         }
-    
-        return response()->json('success', 'Étudiant mis à jour avec succès.');
+
+        $etudiant->save();
+
+        // Ajoute ici l'URL complète de la photo
+        $etudiant->photo = $etudiant->photo ? asset('storage/' . $etudiant->photo) : null;
+
+        return response()->json([
+            'message' => 'Étudiant mis à jour avec succès.',
+            'etudiant' => $etudiant
+        ]);
     }
+
     
     /**
      * Update the specified resource in storage.

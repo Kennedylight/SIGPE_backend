@@ -70,6 +70,37 @@ class FirebaseNotificationService
 //     return $response->json();
 // }
 
+    // public function sendNotification($deviceToken, $title, $body, $redirectUrl = '/student-course', $data = [])
+    // {
+    //     $url = "https://fcm.googleapis.com/v1/projects/{$this->projectId}/messages:send";
+
+    //     // ➕ Fusionne les données de redirection avec celles personnalisées
+    //     // $data = array_merge(['redirect' => $redirectUrl], $data);
+
+    //     $message = [
+    //         'message' => [
+    //             'token' => $deviceToken,
+    //             'notification' => [
+    //                 'title' => $title,
+    //                 'body' => $body,
+    //             ],
+    //             'data' => $data,
+    //             'webpush' => [
+    //                 'fcm_options' => [
+    //                     'link' => "http://localhost:8100$redirectUrl"
+    //                 ]
+    //             ]
+    //         ]
+    //     ];
+
+    //     $response = Http::withToken($this->accessToken)
+    //         ->withHeaders(['Content-Type' => 'application/json'])
+    //         ->post($url, $message);
+
+    //     return $response->json();
+    // }
+
+
 public function sendNotification($deviceToken, $title, $body, $redirectUrl = '/student-course')
 {
     $url = "https://fcm.googleapis.com/v1/projects/{$this->projectId}/messages:send";

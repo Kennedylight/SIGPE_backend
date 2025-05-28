@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
 
 class AdminController extends Controller
 {
@@ -75,10 +76,20 @@ class AdminController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Request $request)
     {
-        //
+        $user = auth('admin-api')->user();
+
+        if (!$user || !$user->admin) {
+            return response()->json(['message' => 'Utilisateur administrateur non trouvé'], 404);
+        }
+
+        return response()->json([
+            'admin' => $user->admin,
+            'access_token' => $request->bearerToken()
+        ]);
     }
+
 
     /**
      * Show the form for editing the specified resource.

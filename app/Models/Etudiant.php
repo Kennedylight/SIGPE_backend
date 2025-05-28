@@ -44,4 +44,10 @@ class Etudiant extends Authenticatable
         return $this->device_token; // ou fcm_token si tu renommes la colonne
     }
 
+    public function getPhotoAttribute($value)
+    {
+        return $value ? asset('storage/' . $value) : null;
+    }
+
+
 }

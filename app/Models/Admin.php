@@ -19,4 +19,9 @@ class Admin extends Authenticatable
         'photo',
         'password'
     ];
+
+    public function getPhotoAttribute($value)
+    {
+        return $value ? asset('storage/' . $value) : null;
+    }
 }
