@@ -19,6 +19,7 @@ class CreateJustificatifsTable extends Migration
             $table->string("reponse_enseignant")->nullable();            
             $table->foreignId('etudiant_id')->constrained('etudiants')->onDelete('cascade');
             $table->foreignId('enseignant_id')->constrained('enseignants')->onDelete('cascade');
+            $table->foreignId('presence_id')->constrained('presences')->onDelete('cascade');
             $table->foreignId('matiere_id')->constrained('matieres')->onDelete('cascade');
             $table->enum('statut', ['Nouveau', 'Accepté', 'En cours', 'Refusé' ,"Renvoyé"])->default('Nouveau');
             $table->string("piece_jointes")->nullable();

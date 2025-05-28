@@ -24,4 +24,8 @@ class Presence extends Model
     {
         return $this->belongsTo(Etudiant::class);
     }
+    public function justificatif()
+    {
+        return $this->belongsTo(Justificatifs::class);
+    }
 }

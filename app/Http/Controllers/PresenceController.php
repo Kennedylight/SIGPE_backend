@@ -45,46 +45,11 @@ class PresenceController extends Controller
     }
 }
 
-// public function ajouterPresence(Request $request)
-// {
-//     $request->validate([
-//         'session_id' => 'required|exists:sessions,id',
-//         'matricule' => 'required|string',
-//         'statut' => 'required|in:absent,présent,en retard,excusé',
-//     ]);
+public function ListeDesSessionsManquerParEtudiant($id){
+    $sessionsManquer = Presence::where('statut' , 'absent')->where('etudiant_id' , $id)->get();
+    return response()->json($sessionsManquer);
+}
 
-//     // Recherche de l'étudiant par matricule
-//     $etudiant = Etudiant::where('matricule', $request->matricule)->first();
-
-//     if (!$etudiant) {
-//         return response()->json([
-//             'message' => 'Aucun étudiant trouvé avec ce matricule.',
-//         ], 404);
-//     }
-
-//     // Vérifie si une présence existe déjà
-//     $exists = Presence::where('session_id', $request->session_id)
-//                       ->where('etudiant_id', $etudiant->id)
-//                       ->exists();
-
-//     if ($exists) {
-//         return response()->json([
-//             'message' => 'Présence déjà enregistrée pour cet étudiant dans cette session.',
-//         ], 409);
-//     }
-
-//     // Création de la présence
-//     $presence = Presence::create([
-//         'session_id' => $request->session_id,
-//         'etudiant_id' => $etudiant->id,
-//         'statut' => $request->statut,
-//     ]);
-
-//     return response()->json([
-//         'message' => 'Présence ajoutée avec succès.',
-//         'presence' => $presence
-//     ], 201);
-// }
 
 public function ajouterPresence(Request $request)
 {

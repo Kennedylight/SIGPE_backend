@@ -14,6 +14,7 @@ class JustificatifController extends Controller
             'matiere_id'=>'required',
             'etudiant_id' =>'required',
             'enseignant_id' =>'required',
+            'presence_id' =>'required',
         ]);
 
         $justificatif = Justificatifs::create($request->toArray());

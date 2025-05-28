@@ -14,7 +14,8 @@ class Justificatifs extends Model
         'enseignant_id',     
         'piece_jointes',     
         'matiere_id',         
-        'reponse_enseignant',    
+        'reponse_enseignant',   
+        'presence_id', 
 
     ];
     public function enseignants()
@@ -25,5 +26,9 @@ class Justificatifs extends Model
     public function etudiant()
 {
     return $this->belongsTo(Etudiant::class, 'etudiant_id');
+}
+public function presence()
+{
+    return $this->belongsTo(Presence::class, 'presence_id');
 }
 }

@@ -26,6 +26,9 @@ Route::post("/renvoyerUnJustificatif/{id}",[App\Http\Controllers\JustificatifCon
 Route::post("/CreationDeJustificatif",[App\Http\Controllers\JustificatifController::class,"CreationDeJustificatif"]);
 Route::post("/ListerLesJustificatifsParEnseignant/{id}",[App\Http\Controllers\JustificatifController::class,"ListerLesJustificatifsParEnseignant"]);
 //fin des justificatifs
+//routes pour les presences
+
+Route::post('/ListeDesSessionsManquerParEtudiant/{id}', [App\Http\Controllers\PresenceController::class, 'ListeDesSessionsManquerParEtudiant']);
 Route::post("/changerStatut",[App\Http\Controllers\PresenceController::class,"changerStatut"]);
 // Route::put("/modifierEtudiant",[App\Http\Controllers\EtudiantController::class,"modifier"]);
 Route::post("/modifierEtudiant", [App\Http\Controllers\EtudiantController::class, "modifier"]);
