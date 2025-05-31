@@ -289,4 +289,9 @@ public function updateLocation(Request $request, $id)
     {
         //
     }
+
+    public function studentActivity() {
+        return Etudiant::select('id', 'UPDATED_AT')->get();
+    }
+
 }

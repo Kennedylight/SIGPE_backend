@@ -2,7 +2,7 @@
 
 namespace App\Imports;
 
-use App\Models\Filere;
+// use App\Models\Filere;
 use App\Models\Filiere;
 use App\Models\Matiere;
 use App\Models\Niveau;

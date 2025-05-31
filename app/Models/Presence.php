@@ -26,6 +26,11 @@ class Presence extends Model
     }
     public function justificatif()
     {
-        return $this->belongsTo(Justificatifs::class);
+        return $this->hasOne(Justificatifs::class);
     }
+
+    // public function justificatif()
+    // {
+    //     return $this->belongsTo(Justificatifs::class);
+    // }
 }

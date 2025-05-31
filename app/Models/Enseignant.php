@@ -24,13 +24,20 @@ class Enseignant extends Authenticatable
         'password',
         'device_token'
     ];
+
     public function matieres()
-{
-    return $this->belongsToMany(Matiere::class);
-}
+    {
+        return $this->belongsToMany(Matiere::class, 'enseignant_matiere', 'enseignant_id', 'matiere_id')
+                    ->withTimestamps();
+    }
+    // public function matieres()
+    // {
+    //     return $this->belongsToMany(Matiere::class);
+    // }
+
 public function filieres()
 {
-    return $this->belongsToMany(Filere::class, 'enseignant_filiere', 'enseignant_id', 'filiere_id');
+    return $this->belongsToMany(Filiere::class, 'enseignant_filiere', 'enseignant_id', 'filiere_id');
 }
 public function niveaux()
 {

@@ -240,8 +240,52 @@ public function modifier(Request $request)
     return response()->json(['message' => 'Enseignant mis à jour avec succès.']);
 }
 
+    public function getSubjects($enseignantId)
+    {
+        $enseignant = Enseignant::findOrFail($enseignantId);
+        
+        return response()->json(
+            $enseignant->matieres()
+                ->select('matieres.id', 'matieres.nom', 'matieres.code')
+                ->get()
+        );
+    }
 
+    public function getFilieres($id)
+{
+    $enseignant = Enseignant::with('filieres')->find($id);
 
+    if (!$enseignant) {
+        return response()->json(['message' => 'Enseignant non trouvé'], 404);
+    }
 
+    return response()->json($enseignant->filieres);
+}
 
+public function getNiveaux($id)
+{
+    $enseignant = Enseignant::with('niveaux')->find($id);
+
+    if (!$enseignant) {
+        return response()->json(['message' => 'Enseignant non trouvé'], 404);
+    }
+
+    return response()->json($enseignant->niveaux);
+}
+
+public function teacherActivity() {
+  return Enseignant::select('id', 'UPDATED_AT')->get();
+}
+
+public function getMatieres($id)
+    {
+        $enseignant = \App\Models\Enseignant::with('matieres')->find($id);
+
+        if (!$enseignant) {
+            return response()->json(['message' => 'Enseignant introuvable.'], 404);
+        }
+
+        return response()->json(['matieres' => $enseignant->matieres]);
+    }
+    
 }

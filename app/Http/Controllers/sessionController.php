@@ -336,6 +336,7 @@ public function update(Request $request, $id)
                             'heure' => (string)$heure,
                             'session_id' => (string)$sessionId,
                             'modifs' => (string)$details,
+                            'action' => 'refresh',
                         ],
                         type: 'warning'
                     );
@@ -426,6 +427,7 @@ public function destroy($id)
                     'matiere' => $matiere,
                     'heure' => $heure,
                     'session_id' => $id,
+                    'action' => 'refresh',
                 ],
                 type: 'alert' // ex: 'alert', 'info', etc.
             );
@@ -499,38 +501,6 @@ public function lancerSession(Request $request, $id)
         ]);
     }
 
-    // 4. Envoi de la notification
-    // Notification::send($etudiants, new SessionLancee($session));
-    // foreach ($etudiants as $etudiant) {
-    //     $deviceToken = $etudiant->device_token;
-
-    //     logger()->info("Envoi notification à {$etudiant->id} / token: {$deviceToken}");
-
-    //     if ($deviceToken) {
-    //         $title = "Session lancée";
-    //         $body = "Le cours de {$session->matiere->nom} commence en salle {$session->salle->nom}.";
-
-    //         $presence = Presence::where('session_id', $session->id)
-    //                             ->where('etudiant_id', $etudiant->id)
-    //                             ->first();
-
-    //         $this->firebaseService->sendNotification(
-    //             $deviceToken,
-    //             $title,
-    //             $body,
-    //             '/student-course',
-    //             [
-    //                 'session_id' => $session->id,
-    //                 'presence_id' => optional($presence)->id,
-    //                 'course' => $session->matiere->nom,
-    //                 'room' => $session->salle->nom,
-    //                 'time' => $session->heure_debut,
-    //             ]
-    //         );
-    //     }
-    // }
-
-
     foreach ($etudiants as $etudiant) {
         $deviceToken = $etudiant->device_token;
 
@@ -547,7 +517,8 @@ public function lancerSession(Request $request, $id)
                 [
                     'course' => $matiere,
                     'room' => $salle,
-                    'time' => $heure
+                    'time' => $heure,
+                    'action' => 'refresh',
                 ],
                 'modal'
             );
@@ -592,7 +563,8 @@ public function terminerSession(Request $request, $id)
                 [
                     'course' => $matiere,
                     'room' => $salle,
-                    'time' => $heure
+                    'time' => $heure,
+                    'action' => 'refresh',
                 ],
                 'prompt'
             );

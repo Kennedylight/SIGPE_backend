@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Models\Filere;
+// use App\Models\Filere;
 use App\Models\Filiere;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;

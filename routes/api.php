@@ -7,6 +7,8 @@ use App\Http\Controllers\SalleController;
 use App\Http\Controllers\EnseignantController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
+use App\Http\Controllers\AdminController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -20,12 +22,17 @@ use Illuminate\Support\Facades\Route;
 
 //routes des justificatifs
 
+Route::post('/justificatifs/{id}/modifier', [App\Http\Controllers\JustificatifController::class, 'ModifierUnJustificatifApresRenvoi']);
+Route::delete('/justificatifs/{id}', [App\Http\Controllers\JustificatifController::class, 'supprimerJustificatif']);
+Route::patch('/justificatifs/{id}/reponse', [App\Http\Controllers\JustificatifController::class, 'repondreJustificatif']);
+Route::middleware('auth:etudiant-api')->get('/justificatifs/etudiant', [App\Http\Controllers\JustificatifController::class, 'ListerJustificatifsEtudiant']);
 Route::post("/AccepterUnJustification/{id}",[App\Http\Controllers\JustificatifController::class,"AccepterUnJustification"]);
 Route::post("/RefuserUnJustificatif/{id}",[App\Http\Controllers\JustificatifController::class,"RefuserUnJustificatif"]);
 Route::post("/ModifierUnJustificatifApresRenvoi/{id}",[App\Http\Controllers\JustificatifController::class,"ModifierUnJustificatifApresRenvoi"]);
 Route::post("/renvoyerUnJustificatif/{id}",[App\Http\Controllers\JustificatifController::class,"renvoyerUnJustificatif"]);
 Route::post("/CreationDeJustificatif",[App\Http\Controllers\JustificatifController::class,"CreationDeJustificatif"]);
 Route::post("/ListerLesJustificatifsParEnseignant/{id}",[App\Http\Controllers\JustificatifController::class,"ListerLesJustificatifsParEnseignant"]);
+//Route::post("/ListerLesJustificatifsParEnseignant/{id}",[App\Http\Controllers\JustificatifController::class,"ListerJustificatifsEtudiant"]);
 //fin des justificatifs
 //routes pour les presences
 
@@ -45,6 +52,12 @@ Route::post("/sessionsParFiliereEtNiveau",[App\Http\Controllers\SessionControlle
 Route::post('/getMatieresByEnseignant/{id}', [App\Http\Controllers\MatieresController::class, 'getMatieresByEnseignant']);
 Route::post('/getMatieresByEnseignantFiliereAndNiveau/{id}', [App\Http\Controllers\MatieresController::class, 'getMatieresByEnseignantFiliereAndNiveau']);
 
+// Récupérer les filières d'un enseignant
+Route::get('/enseignants/{id}/filieres', [App\Http\Controllers\EnseignantController::class, 'getFilieres']);
+// Récupérer les niveaux d'un enseignant
+Route::get('/enseignants/{id}/niveaux', [App\Http\Controllers\EnseignantController::class, 'getNiveaux']);
+
+
 Route::post('/MatiereImport', [App\Http\Controllers\MatieresController::class, 'ImportExcel']);
 Route::post('/SalleImport', [App\Http\Controllers\SalleController::class, 'ImportExcel']);
 Route::post('/FiliereImport', [App\Http\Controllers\FiliereController::class, 'ImportExcel']);
@@ -62,27 +75,48 @@ Route::middleware(['auth:etudiant-api,enseignant-api,admin-api'])->group(functio
     Route::delete('/notifications', [App\Http\Controllers\NotificationController::class, 'destroyAll']);
 });
 
-// // Pour les étudiants
-// Route::middleware('auth:etudiant-api')->group(function () {
-//     Route::get('/notifications', [App\Http\Controllers\NotificationController::class, 'index']);
-//     Route::post('/notifications/{id}/read', [App\Http\Controllers\NotificationController::class, 'markAsRead']);
-//     Route::post('/notifications/read-all', [App\Http\Controllers\NotificationController::class, 'markAllAsRead']);
+// Route::prefix('admin')->middleware(['auth:admin-api', 'admin'])->group(function () {
+//     // CRUD Générique
+//     Route::get('{model}', [App\Http\Controllers\AdminController::class, 'index']);
+//     Route::post('{model}', [App\Http\Controllers\AdminController::class, 'store']);
+//     Route::put('{model}/{id}', [App\Http\Controllers\AdminController::class, 'update']);
+//     Route::delete('{model}/{id}', [App\Http\Controllers\AdminController::class, 'destroy']);
+    
+//     // Gestion des relations enseignant
+//     Route::post('enseignants/{teacherId}/link-entities', [App\Http\Controllers\AdminController::class, 'linkTeacherToEntities']);
 // });
+Route::prefix('admin')->group(function () {
+    Route::get('/{model}', [AdminController::class, 'index']);
+    Route::post('/{model}', [AdminController::class, 'store']);
+    Route::put('/{model}/{id}', [AdminController::class, 'update']);
+    Route::delete('/{model}/{id}', [AdminController::class, 'destroy']);
 
-// // Pour les enseignants
-// Route::middleware('auth:enseignant-api')->group(function () {
-//     Route::get('/notifications', [App\Http\Controllers\NotificationController::class, 'index']);
-//     Route::post('/notifications/{id}/read', [App\Http\Controllers\NotificationController::class, 'markAsRead']);
-//     Route::post('/notifications/read-all', [App\Http\Controllers\NotificationController::class, 'markAllAsRead']);
-// });
+    Route::post('/login', [AdminController::class, 'login']);
+    Route::post('/enseignant/{teacherId}/link', [AdminController::class, 'linkTeacherToEntities']);
+});
+Route::middleware('auth:admin-api')->get('/presence/stats', [App\Http\Controllers\PresenceController::class, 'getAttendanceStats']);
 
-// // Pour les admins
-// Route::middleware('auth:admin-api')->group(function () {
-//     Route::get('/notifications', [App\Http\Controllers\NotificationController::class, 'index']);
-//     Route::post('/notifications/{id}/read', [App\Http\Controllers\NotificationController::class, 'markAsRead']);
-//     Route::post('/notifications/read-all', [App\Http\Controllers\NotificationController::class, 'markAllAsRead']);
-// });
+Route::get('/enseignant/global-presences', [App\Http\Controllers\PresenceController::class, 'getGlobalPresenceStats'])->middleware('auth:enseignant-api');
+Route::get('/etudiant/statut', [App\Http\Controllers\PresenceController::class, 'getStatutEtudiant']);
 
+Route::get('/statistiques/etudiant-session', [App\Http\Controllers\PresenceController::class, 'getStatistiquesEtudiantParSession']);
+Route::get('/etudiant/statistiques-par-matiere', [App\Http\Controllers\PresenceController::class, 'getStatistiquesEtudiantParMatiere']);
+
+Route::get('/sessions/{id}/stats', [App\Http\Controllers\PresenceController::class, 'getStatsBySession']);
+
+Route::get('/enseignants/activities', [App\Http\Controllers\EnseignantController::class, 'teacherActivity']);
+Route::get('/etudiants/activities', [App\Http\Controllers\EtudiantController::class, 'studentActivity']);
+Route::get('/enseignants/{id}/matieres', [App\Http\Controllers\EnseignantController::class, 'getMatieres'])->middleware('auth:enseignant-api');
+
+Route::get('/enseignant/{enseignant}/matieres', [App\Http\Controllers\EnseignantController::class, 'getSubjects']);
+//Route::get('/teacher/presence-stats', [App\Http\Controllers\PresenceController::class, 'getTeacherPresenceStats']);
+Route::get('/etudiants/{id}/presences', [App\Http\Controllers\PresenceController::class, 'getPresencesWithSessions']);
+Route::get('/presences/etudiant/{id}', [App\Http\Controllers\PresenceController::class, 'getStats']);
+
+Route::get('/enseignants/{id}/assiduite', [App\Http\Controllers\PresenceController::class, 'getAssiduiteParEtudiant']);
+
+Route::middleware('auth:enseignant-api')->get('/teacher/presence-stats', [App\Http\Controllers\PresenceController::class, 'getTeacherPresenceStats']);
+Route::middleware('auth:enseignant-api')->get('/teacher-presence-stats', [App\Http\Controllers\PresenceController::class, 'getTeacherPresenceStats_2']);
 
 Route::middleware('auth:etudiant-api')->get('/etudiant/me', function (Request $request) {
     return $request->user();

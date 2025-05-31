@@ -16,19 +16,27 @@ class Justificatifs extends Model
         'matiere_id',         
         'reponse_enseignant',   
         'presence_id', 
-
+        'reponse_enseignant',
+        'statut'
     ];
-    public function enseignants()
+    // public function enseignants()
+    // {
+    //     return $this->belongsToMany(Enseignant::class);
+    // }
+    public function enseignant()
     {
-        return $this->belongsToMany(Enseignant::class);
+        return $this->belongsTo(Enseignant::class, 'enseignant_id');
     }
- 
     public function etudiant()
-{
-    return $this->belongsTo(Etudiant::class, 'etudiant_id');
-}
-public function presence()
-{
-    return $this->belongsTo(Presence::class, 'presence_id');
-}
+    {
+        return $this->belongsTo(Etudiant::class, 'etudiant_id');
+    }
+    public function presence()
+    {
+        return $this->belongsTo(Presence::class, 'presence_id');
+    }
+    public function matiere()
+    {
+        return $this->belongsTo(Matiere::class);
+    }
 }
