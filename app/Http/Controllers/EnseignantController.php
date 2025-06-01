@@ -13,6 +13,7 @@ use App\Imports\EnseignantImport;
 use App\Models\Session;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 
 class EnseignantController extends Controller

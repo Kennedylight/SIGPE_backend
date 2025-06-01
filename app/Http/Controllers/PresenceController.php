@@ -6,9 +6,17 @@ use Illuminate\Http\Request;
 use App\Models\Session;
 use App\Models\Etudiant;
 use App\Models\Presence;
+use App\Services\FirebaseNotificationService;
 
 class PresenceController extends Controller
 {
+    protected $firebaseService;
+
+    public function __construct(FirebaseNotificationService $firebaseService)
+    {
+        $this->firebaseService = $firebaseService;
+    }
+
     public function getInscritsParSession($id)
     {
         $presences = Presence::with('etudiant')
@@ -17,33 +25,89 @@ class PresenceController extends Controller
 
         return response()->json($presences);
     }
+
     public function changerStatut(Request $request)
-    {
-        $request->validate([
-            'session_id' => 'required|exists:sessions,id',
-            'etudiant_id' => 'required|exists:etudiants,id',
-            'statut' => 'required|in:absent,présent,en retard,excusé',
-        ]);
+{
+    $request->validate([
+        'session_id' => 'required|exists:sessions,id',
+        'etudiant_id' => 'required|exists:etudiants,id',
+        'statut' => 'required|in:absent,présent,en retard,excusé',
+    ]);
 
-        // Vérifie si la présence existe
-        $presence = Presence::where('session_id', $request->session_id)
-                            ->where('etudiant_id', $request->etudiant_id)
-                            ->first();
+    $presence = Presence::with('session')->where('session_id', $request->session_id)
+                        ->where('etudiant_id', $request->etudiant_id)
+                        ->first();
 
-        if ($presence) {
-            $presence->statut = $request->statut;
-            $presence->save();
+    if (!$presence) {
+        return response()->json([
+            'message' => 'Aucune présence trouvée pour cet étudiant et cette session.',
+        ], 404);
+    }
 
-            return response()->json([
-                'message' => 'Statut mis à jour.',
-                'presence' => $presence
-            ]);
-        } else {
-            return response()->json([
-                'message' => 'Aucune présence trouvée pour cet étudiant et cette session.',
-            ], 404);
+    // Mise à jour du statut
+    $presence->statut = $request->statut;
+    $presence->save();
+
+    $session = $presence->session;
+    $matiere = $session->matiere->nom ?? 'une matière';
+
+    // Tous les étudiants inscrits à la session (même filière/niveau)
+    $etudiants = Etudiant::where('filiere_id', $session->filiere_id)
+                         ->where('niveau_id', $session->niveau_id)
+                         ->whereNotNull('device_token')
+                         ->get();
+
+    foreach ($etudiants as $etudiant) {
+        $deviceToken = trim($etudiant->device_token);
+        if (!empty($deviceToken)) {
+            $this->firebaseService->sendNotification(
+                $deviceToken,
+                "Présence mise à jour",
+                "La liste de présence pour la session de {$matiere} a été modifiée.",
+                '/student-course',
+                [
+                    'session_id' => $session->id,
+                    'action' => 'refresh_list'
+                ],
+                'prompt'
+            );
         }
     }
+
+    return response()->json([
+        'message' => 'Statut mis à jour et notification envoyée aux étudiants.',
+        'presence' => $presence
+    ]);
+}
+
+
+    // public function changerStatut(Request $request)
+    // {
+    //     $request->validate([
+    //         'session_id' => 'required|exists:sessions,id',
+    //         'etudiant_id' => 'required|exists:etudiants,id',
+    //         'statut' => 'required|in:absent,présent,en retard,excusé',
+    //     ]);
+
+    //     // Vérifie si la présence existe
+    //     $presence = Presence::where('session_id', $request->session_id)
+    //                         ->where('etudiant_id', $request->etudiant_id)
+    //                         ->first();
+
+    //     if ($presence) {
+    //         $presence->statut = $request->statut;
+    //         $presence->save();
+
+    //         return response()->json([
+    //             'message' => 'Statut mis à jour.',
+    //             'presence' => $presence
+    //         ]);
+    //     } else {
+    //         return response()->json([
+    //             'message' => 'Aucune présence trouvée pour cet étudiant et cette session.',
+    //         ], 404);
+    //     }
+    // }
 
     public function ListeDesSessionsManquerParEtudiant($id)
     {

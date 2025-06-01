@@ -143,14 +143,73 @@ public function store(Request $request)
         'enseignant_id' => 'required|exists:enseignants,id'
     ]);
 
-    // Création directe
+    // Création de la session
     $session = \App\Models\Session::create($validated);
-
-    // Charger les relations avant de retourner
     $session->load(['matiere', 'salle', 'enseignant', 'filiere', 'niveau']);
+
+    // Récupération des étudiants concernés
+    $etudiants = \App\Models\Etudiant::where('filiere_id', $session->filiere_id)
+                    ->where('niveau_id', $session->niveau_id)
+                    ->get();
+
+    // Préparation du contenu de la notification
+    $matiere = $session->matiere->nom ?? 'matière inconnue';
+    $heure = $session->heure_debut;
+    $salle = $session->salle->nom ?? 'salle inconnue';
+
+    $title = "Nouvelle session planifiée";
+    $body = "Un cours de '$matiere' aura lieu à '$heure' dans la salle '$salle'.";
+
+    $payload = [
+        'course' => $matiere,
+        'room' => $salle,
+        'time' => (string) $heure,
+        'salle_id' => (string) ($session->salle->id ?? ''),
+        'latitude' => (string) ($session->salle->latitude ?? ''),
+        'longitude' => (string) ($session->salle->longitude ?? ''),
+        'rayon' => (string) ($session->salle->rayon_metres ?? ''),
+        'session_id' => (string) $session->id,
+        'action' => 'refresh'
+    ];
+
+    // Envoi des notifications
+    foreach ($etudiants as $etudiant) {
+        // Notification Laravel persistante
+        $etudiant->notify(new \App\Notifications\MessageNotification(
+            $title,
+            $body,
+            'info' // ou 'modal', 'alert', etc.
+        ));
+
+        // Notification FCM
+        $deviceToken = trim($etudiant->device_token);
+        if (!empty($deviceToken)) {
+            try {
+                $response = $this->firebaseService->sendNotification(
+                    $deviceToken,
+                    $title,
+                    $body,
+                    '/student-course',
+                    $payload,
+                    'info'
+                );
+
+                if (isset($response['error']['status']) && in_array($response['error']['status'], ['INVALID_ARGUMENT', 'UNREGISTERED'])) {
+                    \Log::warning("Suppression d'un token invalide pour l'étudiant ID {$etudiant->id}");
+                    $etudiant->update(['device_token' => null]);
+                }
+            } catch (\Throwable $e) {
+                \Log::error("Erreur lors de l'envoi FCM à l'étudiant ID {$etudiant->id}", [
+                    'token' => $deviceToken,
+                    'error' => $e->getMessage()
+                ]);
+            }
+        }
+    }
 
     return response()->json($session, 201);
 }
+
 
 
 public function show($id)
@@ -158,100 +217,6 @@ public function show($id)
     $session = Session::with('salle')->findOrFail($id);
     return response()->json($session);
 }
-
-// public function update(Request $request, $id)
-// {
-//     $session = Session::findOrFail($id);
-
-//     $validated = $request->validate([
-//         'statut' => 'sometimes|required|string',
-//         'heure_debut' => 'sometimes|required|date',
-//         'heure_fin' => 'sometimes|required|date|after:heure_debut',
-//         'lien' => 'nullable|string',
-//         'description' => 'nullable|string',
-//         'salle_id' => 'nullable|exists:salles,id',
-//         'matiere_id' => 'sometimes|exists:matieres,id',
-//         'filiere_id' => 'sometimes|exists:filieres,id',
-//         'niveau_id' => 'sometimes|exists:niveaux,id',
-//         'enseignant_id' => 'sometimes|exists:enseignants,id',
-//     ]);
-
-//     $session->update($validated);
-
-//     // Recharger les relations si besoin
-//     $session->load(['matiere', 'salle', 'enseignant', 'filiere', 'niveau']);
-
-//     return response()->json($session);
-// }
-
-// public function update(Request $request, $id)
-// {
-//     $session = Session::findOrFail($id);
-
-//     $validated = $request->validate([
-//         'statut' => 'sometimes|required|string',
-//         'heure_debut' => 'sometimes|required|date',
-//         'heure_fin' => 'sometimes|required|date|after:heure_debut',
-//         'lien' => 'nullable|string',
-//         'description' => 'nullable|string',
-//         'salle_id' => 'nullable|exists:salles,id',
-//         'matiere_id' => 'sometimes|exists:matieres,id',
-//         'filiere_id' => 'sometimes|exists:filieres,id',
-//         'niveau_id' => 'sometimes|exists:niveaux,id',
-//         'enseignant_id' => 'sometimes|exists:enseignants,id',
-//     ]);
-
-//     $session->update($validated);
-
-//     // Recharger les relations
-//     $session->load(['matiere', 'salle', 'enseignant', 'filiere', 'niveau']);
-
-//     // Si la session est modifiée sur une donnée importante, notifier les étudiants
-//     if (isset($validated['heure_debut']) || isset($validated['salle_id']) || isset($validated['lien'])) {
-//         $matiere = $session->matiere->nom ?? 'cours';
-//         $heure = $session->heure_debut;
-//         $sessionId = $session->id;
-
-//         // Template de notification type 'info'
-//         $template = NotificationTemplate::courseUpdated($matiere, $heure); // À créer dans ton helper
-
-//         // Récupérer les étudiants concernés
-//         $etudiants = Etudiant::where('filiere_id', $session->filiere_id)
-//                              ->where('niveau_id', $session->niveau_id)
-//                              ->get();
-
-//         foreach ($etudiants as $etudiant) {
-//             // 1. Notification Laravel
-//             $etudiant->notify(new MessageNotification(
-//                 $template['title'],
-//                 $template['message'],
-//                 $template['type']
-//             ));
-
-//             // 2. Notification Push
-//             if ($etudiant->device_token) {
-//                 $this->firebaseService->sendNotification(
-//                     deviceToken: $etudiant->device_token,
-//                     title: $template['title'],
-//                     body: $template['message'],
-//                     redirectUrl: '/notification',
-//                     data: [
-//                         'matiere' => $matiere,
-//                         'heure' => $heure,
-//                         'session_id' => $id,
-//                     ],
-//                     type: 'warning' // ex: 'alert', 'info', etc.
-//                 );
-//             }
-//         }
-//     }
-
-//     return response()->json([
-//         'message' => 'Session mise à jour avec succès',
-//         'session' => $session
-//     ]);
-// }
-
 
 public function update(Request $request, $id)
 {
@@ -353,39 +318,6 @@ public function update(Request $request, $id)
     ]);
 }
 
-// public function destroy($id)
-// {
-//     $session = Session::with(['matiere', 'niveau', 'filiere'])->findOrFail($id);
-
-//     // Récupérer les infos pour la notification
-//     $matiere = $session->matiere->nom ?? 'matière inconnue';
-//     $heure = $session->heure_debut ?? 'heure inconnue';
-//     $filiereId = $session->filiere_id;
-//     $niveauId = $session->niveau_id;
-
-//     // Supprimer la session
-//     $session->delete();
-
-//     // Récupérer les étudiants de la même filière + niveau
-//     $etudiants = Etudiant::where('filiere_id', $filiereId)
-//                          ->where('niveau_id', $niveauId)
-//                          ->get();
-
-//     // Créer le template
-//     $template = NotificationTemplate::courseCancelled($matiere, $heure);
-
-//     // Envoyer la notification à chaque étudiant
-//     foreach ($etudiants as $etudiant) {
-//         $etudiant->notify(new MessageNotification(
-//             $template['title'],
-//             $template['message'],
-//             $template['type']
-//         ));
-//     }
-
-//     return response()->json(['message' => 'Session supprimée et notifications envoyées avec succès.']);
-// }
-
 public function destroy($id)
 {
     $session = Session::with(['matiere', 'niveau', 'filiere'])->findOrFail($id);
@@ -440,102 +372,75 @@ public function destroy($id)
     ]);
 }
 
+        public function lancerSession(Request $request, $id)
+    {
+        $session = Session::findOrFail($id);
+
+        $session->statut = 'En cours';
+        $session->save();
+        $matiere = $session->matiere->nom ?? 'matière inconnue';
+        $heure = $session->heure_debut ?? 'heure inconnue';
+        $salle = $session->salle; // ->nom ?? 'salle inconnue';
 
 
-// public function destroy($id)
-// {
-//     $session = Session::findOrFail($id);
-//     $session->delete();
+        $etudiants = Etudiant::where('filiere_id', $session->filiere_id)
+                            ->where('niveau_id', $session->niveau_id)
+                            ->whereNotNull('device_token')
+                            ->get();
 
-//     return response()->json(['message' => 'Session supprimée avec succès.']);
-// }
+        foreach ($etudiants as $etudiant) {
+            Presence::firstOrCreate([
+                'session_id' => $session->id,
+                'etudiant_id' => $etudiant->id,
+            ], [
+                'statut' => 'absent'
+            ]);
+        }
 
-// public function lancerSession(Request $request, $id)
-// {
-//     $session = Session::findOrFail($id);
-
-//     // 1. Mettre à jour le statut
-//     $session->statut = 'En cours';
-//     $session->save();
-
-//     // 2. Récupérer les étudiants liés à la filière et au niveau
-//     $etudiants = Etudiant::where('filiere_id', $session->filiere_id)
-//                         ->where('niveau_id', $session->niveau_id)
-//                         ->get();
-
-//     // 3. Créer les présences
-//     foreach ($etudiants as $etudiant) {
-//         Presence::create([
-//             'session_id' => $session->id,
-//             'etudiant_id' => $etudiant->id,
-//             'statut' => 'absent'
-//         ]);
-       
-//     }
-//         Notification::send($etudiants, new SessionLancee($session));
-//         return response()->json("Une notification a ete envoyer a tous les utilisateurs");
-// }
-
-public function lancerSession(Request $request, $id)
-{
-    $session = Session::findOrFail($id);
-
-    $session->statut = 'En cours';
-    $session->save();
-    $matiere = $session->matiere->nom ?? 'matière inconnue';
-    $heure = $session->heure_debut ?? 'heure inconnue';
-    $salle = $session->salle->nom ?? 'salle inconnue';
-
-
-    $etudiants = Etudiant::where('filiere_id', $session->filiere_id)
-                        ->where('niveau_id', $session->niveau_id)
-                        ->whereNotNull('device_token')
-                        ->get();
-
-    foreach ($etudiants as $etudiant) {
-        Presence::firstOrCreate([
+        // Préparer les données à envoyer
+        $payload = [
+            'course' => $matiere,
+            'room' => $salle->nom,
+            'time' => $heure,
+            'salle_id' => $salle->id,
+            'latitude' => $salle->latitude,
+            'longitude' => $salle->longitude,
+            'rayon' => $salle->rayon_metres,
             'session_id' => $session->id,
-            'etudiant_id' => $etudiant->id,
-        ], [
-            'statut' => 'absent'
+            'action' => 'refresh'
+        ];
+
+        foreach ($etudiants as $etudiant) {
+            $deviceToken = $etudiant->device_token;
+
+            if ($deviceToken) {
+                $title = "Session lancée";
+                $body = "Votre session '{$session->matiere_id}' vient de commencer.";
+
+                //$this->firebaseService->sendNotification($deviceToken, $title, $body);
+                $this->firebaseService->sendNotification(
+                    $deviceToken,
+                    $title,
+                    $body,
+                    '/student-course',
+                    $payload,
+                    'modal'
+                );
+            }
+        }
+
+        return response()->json([
+            'message' => 'Une notification a été envoyée à tous les étudiants concernés.',
+            'etudiants_notifies' => $etudiants->pluck('id')
         ]);
     }
-
-    foreach ($etudiants as $etudiant) {
-        $deviceToken = $etudiant->device_token;
-
-        if ($deviceToken) {
-            $title = "Session lancée";
-            $body = "Votre session '{$session->matiere_id}' vient de commencer.";
-
-            //$this->firebaseService->sendNotification($deviceToken, $title, $body);
-            $this->firebaseService->sendNotification(
-                $deviceToken,
-                $title,
-                $body,
-                '/student-course',
-                [
-                    'course' => $matiere,
-                    'room' => $salle,
-                    'time' => $heure,
-                    'action' => 'refresh',
-                ],
-                'modal'
-            );
-        }
-    }
-
-    return response()->json([
-        'message' => 'Une notification a été envoyée à tous les étudiants concernés.',
-        'etudiants_notifies' => $etudiants->pluck('id')
-    ]);
-}
 
 public function terminerSession(Request $request, $id)
 {
     $session = Session::findOrFail($id);
 
     $session->statut = 'Terminé';
+    $session->heure_fin = now();
     $session->save();
 
     $matiere = $session->matiere->nom ?? 'matière inconnue';

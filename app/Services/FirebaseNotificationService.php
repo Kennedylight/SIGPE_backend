@@ -142,6 +142,7 @@ public function sendNotification($deviceToken, $title, $body, $redirectUrl = '/s
     // Ajoute les champs à la data
     $data['redirect'] = $redirectUrl;
     $data['type'] = $type;
+    $data = array_map(fn($item) => is_scalar($item) ? (string)$item : json_encode($item), $data);
 
     $message = [
         'message' => [
@@ -165,8 +166,5 @@ public function sendNotification($deviceToken, $title, $body, $redirectUrl = '/s
 
     return $response->json();
 }
-
-
-
 
 }
